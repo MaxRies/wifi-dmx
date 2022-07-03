@@ -214,7 +214,7 @@ if __name__ == "__main__":
         LIGHTS.add_light(light)
 
     LIGHTS.set_pattern(Pattern.SOLID)
-    LIGHTS.set_lights_color((0,255,0)
+    LIGHTS.set_lights_color((0,255,0))
     LIGHTS.set_lights_dimmer(1.0)
     LIGHTS.render()
     sleep(0.5)

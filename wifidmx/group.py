@@ -100,6 +100,7 @@ class Pattern(Enum):
     FULL_FADE = 1
     BEAT_CIRCLE = 2
     STROBE = 3
+    SOLID = 4
 
 
 class LightGroup:
@@ -122,7 +123,7 @@ class LightGroup:
         self.auto_beat = 0.5    # 2 bps = 120 bpm
 
         self._lights = None
-        self._brightness = []
+        self._dimmer = []
 
         self._fg_color = (255, 0, 0)
         self._bg_color = (0, 0, 80)
@@ -259,6 +260,10 @@ class LightGroup:
         self.fill(self._fg_color)
         self.set_lights_dimmer(dimmer_value)
 
+    def solid(self):
+        self.fill(self._fg_color)
+        self.set_lights_dimmer(dimmer_value)
+
 
     """
     #####################################
@@ -311,6 +316,8 @@ class LightGroup:
             pass
         elif self._animation == Pattern.BREATHE:
             self.breathe()
+        elif self._animation == Pattern.SOLID:
+            self.solid()
 
         # Only render with 30 FPS
         if now - self._last_render > 1/FPS:
@@ -330,16 +337,20 @@ class LightGroup:
             self._animation = Pattern(new_pattern)
             logger.info(f"Set pattern to {self._animation}")
 
+
+    @property
+    def dimmer(self):
+        return self._dimmer
+
+    @dimmer.setter
+    def dimmer(self, new_value):
+        if new_value < 0:
+            new_value = 0
+        elif new_value > 1
+            new_value = 1
         
-
-def sleep(vals):
-    from time import sleep
-    sleep(0.05)
-
-def rotate_colors(position):
-    light_colors = [(i/16.0, 0.0, 1.0-i/16.0) for i in range(0,16) ]
-    
-    return [light_colors[(i + position) % 16] for i in range (0,16)]
+        self._dimmer= new_value
+        logger.info("Set Lightgroup Dimmer to {}".format(new_value))
 
 
 if __name__ == "__main__":
@@ -357,34 +368,4 @@ if __name__ == "__main__":
             group.loop()
         except KeyboardInterrupt:
             break
-    
-    """
-    for i in range(0,16):
-        try:
-            light_values = rotate_colors(i)
-            draw_lights(light_values)
-        except KeyboardInterrupt:
-            break
-    
-    for i in range (0, number_of_lamps):
-        light = Light()
-        light.color = (255,255,0)
-        group.add_light(light)
 
-    while True:
-        try:
-            group.rotate_lights(10)
-            group.render()
-            sleep(0.01)
-            group.fade()
-            group.render()
-            sleep(0.01)
-            group.fade()
-            group.render()
-            sleep(0.01)
-            group.fade()
-            group.render()
-            sleep(0.01)
-        except KeyboardInterrupt:
-            break
-    """

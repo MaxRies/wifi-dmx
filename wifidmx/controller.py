@@ -57,46 +57,6 @@ def on_message(client, userdata, msg):
     elif topic == PATTERN_TOPIC:
         handle_pattern(msg.payload)
         
-mqtt.Client.connected_flag = False
-mqtt.Client.bad_connection = False
-
-client = mqtt.Client()
-
-client.on_connect = on_connect
-client.on_message = on_message
-client.reconnect_delay_set(min_delay=1, max_delay=120)
-client.loop_start()
-
-tries = 0
-try:
-    client.connect(MQTT_HOST, MQTT_PORT, 60)
-except:
-    client.bad_connection = True
-
-while True:
-    logger.info("Waiting for MQTT connection...")
-    sleep(3.0)
-    if client.connected_flag:
-        break
-    elif client.bad_connection:
-        logger.info("Trying again...")
-        try:
-            client.connect(MQTT_HOST, MQTT_PORT, 60)
-        except:
-            client.bad_connection = True
-
-logger.info("MQTT connected!")
-
-
-#################### LIGHT STUFF
-channels_per_lamp = 6
-num_lights = 16
-
-LIGHTS = LightGroup()
-for i in range (0,16):
-    light = Light(i * channels_per_lamp + 1)
-    LIGHTS.add_light(light)
-
 
 """
 Outline:
@@ -170,6 +130,7 @@ def handle_dimm(message):
             converted_value = 1.0
 
         LIGHTS.set_lights_dimmer(converted_value)
+        logger.info(f"Set dimmer to {converted_value}")
 
     except ValueError:
         logger.warn("Invalid message passed to handle_dimm: {}".format(message.payload))
@@ -178,6 +139,7 @@ def handle_color(message):
     try:
         new_color = msg_to_color(message)
         LIGHTS.set_lights_color(new_color)
+        logger.info(f"Set color to {new_color}")
 
     except ValueError:
         logger.warn("Invalid message passed to handle_color: {}".format(message.payload))
@@ -189,6 +151,7 @@ def handle_pattern(message):
         new_pattern = (pattern_number / MAXIMUM_MQTT_INT_VALUE) * len(Pattern)
 
         LIGHTS.set_pattern(new_pattern)
+        logger.info(f"Set pattern to: {new_pattern}")
 
     except ValueError:
         logger.warn("Invalid message passed to handle_color: {}".format(message.payload))
@@ -200,6 +163,7 @@ def handle_speed(message):
         new_speed = (speed_number / MAXIMUM_MQTT_INT_VALUE)
 
         LIGHTS.set_speed(new_speed)
+        logger.info(f"Set lights speed to {new_speed}")
 
     except ValueError:
         logger.warn("Invalid message passed to handle_speed: {}".format(message.payload))
@@ -207,5 +171,53 @@ def handle_speed(message):
 
 # The callback for when a PUBLISH message is received from the server.
 
+if __name__ == "__main__":
+    mqtt.Client.connected_flag = False
+    mqtt.Client.bad_connection = False
+
+    client = mqtt.Client()
+
+    client.on_connect = on_connect
+    client.on_message = on_message
+    client.reconnect_delay_set(min_delay=1, max_delay=120)
+    client.loop_start()
+
+    tries = 0
+    try:
+        client.connect(MQTT_HOST, MQTT_PORT, 60)
+    except:
+        client.bad_connection = True
+
+    while True:
+        logger.info("Waiting for MQTT connection...")
+        sleep(3.0)
+        if client.connected_flag:
+            break
+        elif client.bad_connection:
+            logger.info("Trying again...")
+            try:
+                client.connect(MQTT_HOST, MQTT_PORT, 60)
+            except:
+                client.bad_connection = True
+
+    logger.info("MQTT connected!")
+
+
+
+    #################### LIGHT STUFF
+    channels_per_lamp = 6
+    num_lights = 16
+
+    LIGHTS = LightGroup()
+    for i in range (0,16):
+        light = Light(i * channels_per_lamp + 1)
+        LIGHTS.add_light(light)
+
+
+    while True:
+        try:
+            LIGHTS.loop()
+        except KeyboardInterrupt:
+            break
 
 

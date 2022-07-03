@@ -1,4 +1,4 @@
-FROM pysergio/pypoetry:3.9-alpine
+FROM pysergio/pypoetry:3.10-alpine
 
 WORKDIR /app
 

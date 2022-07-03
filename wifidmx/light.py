@@ -1,6 +1,6 @@
 import logging
 logging.basicConfig(
-    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s", level=logging.INFO
+    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s", level=logging.WARN
 )
 logger = logging.getLogger('LightGroup')
 
@@ -62,13 +62,13 @@ class Light:
 
     @color.setter
     def color(self, new_color):
-        logger.info(f"Received {new_color}")
+        # logger.info(f"Received {new_color}")
         if type(new_color) is list or type(new_color) is tuple:
             if len(new_color) == 3:
                 self.r = new_color[0]
                 self.g = new_color[1]
                 self.b = new_color[2]
-                logger.info(f"Set {self._channel} to {self.r},{self.g},{self.b}")
+                # logger.info(f"Set {self._channel} to {self.r},{self.g},{self.b}")
             else:
                 raise ValueError("Wrong color object passed. To little values.")
         elif type(new_color) is str:

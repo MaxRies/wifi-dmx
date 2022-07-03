@@ -48,10 +48,6 @@ logger.info(f"DMX IP: {target_ip}")
 logger.info(f"Number of lamps: {number_of_lamps}")
 logger.info(f"FPS: {FPS}")
 
-def print_light(values):
-    for val in values:
-        print(f"{fg(val)}●")
-
 
 def render_dmx(lights):
     for index, light in enumerate(lights):
@@ -206,7 +202,7 @@ class LightGroup:
             except ValueError:
                 logger.warn("Passed invalid input to set_pattern: {}".format(new_pattern))
                 logger.warn(type(new_pattern))
-    
+
             if new_pattern < 0:
                 new_pattern = 0
             elif new_pattern >= len(Pattern):
@@ -313,7 +309,7 @@ class LightGroup:
 
     def solid(self):
         self.fill(self._fg_color)
-        self.set_lights_dimmer(dimmer_value)
+        self.set_lights_dimmer(self._dimmer)
 
 
     """

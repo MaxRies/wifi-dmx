@@ -389,7 +389,7 @@ class LightGroup:
     def dimmer(self, new_value):
         if new_value < 0:
             new_value = 0
-        elif new_value > 1
+        elif new_value > 1:
             new_value = 1
         
         self._dimmer= new_value

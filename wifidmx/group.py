@@ -14,7 +14,6 @@ logging.basicConfig(
     format="%(asctime)s - %(name)s - %(levelname)s - %(message)s", level=logging.INFO
 )
 logger = logging.getLogger('LightGroup')
-
 ### GLOBALS ####
 
 
@@ -123,7 +122,9 @@ class LightGroup:
         self.auto_beat = 0.5    # 2 bps = 120 bpm
 
         self._lights = None
-        self._dimmer = []
+        
+        self._dimmer = 1.0
+        self._speed=1.0
 
         self._fg_color = (255, 0, 0)
         self._bg_color = (0, 0, 80)
@@ -176,6 +177,10 @@ class LightGroup:
         """
         Dimmer Value: [0.0, 1.0]
         """
+        try:
+            dimmer = float(dimmer)
+        except ValueError:
+            logger.warn("Passed invalid input to set_lights_dimmer: {}".format(dimmer))
         if dimmer < 0:
             dimmer = 0.0
         elif dimmer > 1:
@@ -183,6 +188,44 @@ class LightGroup:
 
         for light in self._lights:
             light.dimmer = dimmer
+
+    def set_pattern(self, new_pattern):
+        """
+        Expected Input: 0 -> len(Pattern)
+        """
+        try:
+            new_pattern = int(new_pattern)
+        except ValueError:
+            logger.warn("Passed invalid input to set_pattern: {}".format(new_pattern))
+            logger.warn(type(new_pattern))
+
+        if new_pattern < 0:
+            new_pattern = 0
+        elif new_pattern >= len(Pattern):
+            new_pattern = len(Pattern) - 1
+        try:
+            self.pattern = Pattern(new_pattern)
+        except ValueError:
+            logger.warn("Passed invalid input to set_pattern: {}".format(new_pattern))
+            logger.warn(type(new_pattern))
+
+
+    def set_speed(self, new_speed):
+        """
+        Speed Value: [0.0, 1.0]
+        """
+        try:
+            new_speed = float(new_speed)
+        except ValueError:
+             logger.warn("Passed invalid input to set_speed: {}".format(new_speed))
+
+        if new_speed < 0:
+            new_speed = 0.0
+        elif new_speed > 1:
+            new_speed = 1.0
+        
+        self._speed = new_speed
+
 
     """
     ###############################

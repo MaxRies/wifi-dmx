@@ -6,14 +6,11 @@ authors = ["Max Ries <max.ries113@gmail.com>"]
 
 [tool.poetry.dependencies]
 python = "^3.8"
-pyartnet = "^0.8.3"
 "truecolor.py" = "^0.0.2"
 stupidArtnet = "^1.3.0"
 paho-mqtt = "^1.6.1"
 
 [tool.poetry.dev-dependencies]
-pytest = "^5.2"
-matplotlib = "^3.5.2"
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]

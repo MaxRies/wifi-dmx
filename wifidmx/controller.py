@@ -1,21 +1,107 @@
 import paho.mqtt.client as mqtt
-
 import logging
+from time import sleep
 
+from light import Light
+from group import LightGroup, Pattern
 
-logging.basicConfig(level=logging.INFO)
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 logger = logging.getLogger("controller")
 
-MAXIMUM_MQTT_INT_VALUE = 65.536
+MAXIMUM_MQTT_INT_VALUE = 65536.0
 BASE_TOPIC = "dmxlights"
 
-MQTT_CONNECTED = False
-MQTT_BROKEN = False
+DIMM_ST = "Dimm"
+SPEED_ST = "Speed"
+COLOR_ST = "Color"
+PATTERN_ST = "Pattern"
+
+DIMM_TOPIC = f"{BASE_TOPIC}/{DIMM_ST}"
+SPEED_TOPIC = f"{BASE_TOPIC}/{SPEED_ST}"
+COLOR_TOPIC = f"{BASE_TOPIC}/{COLOR_ST}"
+PATTERN_TOPIC = f"{BASE_TOPIC}/{PATTERN_ST}"
+
+
+
+############## MQTT STUFF ################
+MQTT_HOST = "127.0.0.1"
+MQTT_PORT = 1883
+
+def subscribe (client, topic):
+    client.subscribe(topic)
+    logger.info(f"Subscribing to {topic}")
+
+def on_connect(client, userdata, flags, rc):
+    if rc == 0:
+        client.connected_flag = True
+        client.bad_connection = False
+    else:
+        client.bad_connection = True
+        client.connected_flag = False
+    logger.info("Connected with result code " + str(rc))
+    subscribe(client, DIMM_TOPIC)
+    subscribe(client, SPEED_TOPIC)
+    subscribe(client, COLOR_TOPIC)
+    subscribe(client, PATTERN_TOPIC)
+
+def on_message(client, userdata, msg):
+    logger.info(msg.topic+" "+str(msg.payload))
+    topic = msg.topic
+
+    if topic == DIMM_TOPIC:
+        handle_dimm(msg.payload)
+    elif topic == SPEED_TOPIC:
+        handle_speed(msg.payload)
+    elif topic == COLOR_TOPIC:
+        handle_color(msg.payload)
+    elif topic == PATTERN_TOPIC:
+        handle_pattern(msg.payload)
+        
+mqtt.Client.connected_flag = False
+mqtt.Client.bad_connection = False
+
+client = mqtt.Client()
+
+client.on_connect = on_connect
+client.on_message = on_message
+client.reconnect_delay_set(min_delay=1, max_delay=120)
+client.loop_start()
+
+tries = 0
+try:
+    client.connect(MQTT_HOST, MQTT_PORT, 60)
+except:
+    client.bad_connection = True
+
+while True:
+    logger.info("Waiting for MQTT connection...")
+    sleep(3.0)
+    if client.connected_flag:
+        break
+    elif client.bad_connection:
+        logger.info("Trying again...")
+        try:
+            client.connect(MQTT_HOST, MQTT_PORT, 60)
+        except:
+            client.bad_connection = True
+
+logger.info("MQTT connected!")
+
+
+#################### LIGHT STUFF
+channels_per_lamp = 6
+num_lights = 16
+
+LIGHTS = LightGroup()
+for i in range (0,16):
+    light = Light(i * channels_per_lamp + 1)
+    LIGHTS.add_light(light)
+
 
 """
 Outline:
-[ ] Connection Handling
-[ ] Error Handling (Reconnect after disconnect!)
+[X] Connection Handling
+[X] Error Handling (Reconnect after disconnect!)
 [ ] Make Topics configurable
 [ ] Topics:
     - ColorFG
@@ -74,38 +160,52 @@ def msg_to_color(msg):
         values = string_to_color(msg.payload)
         return values
 
+def handle_dimm(message):
+    try:
+        new_value = float(message.payload)
+        converted_value = new_value / MAXIMUM_MQTT_INT_VALUE
+        if converted_value < 0:
+            converted_value = 0
+        elif converted_value > 1.0:
+            converted_value = 1.0
 
+        LIGHTS.set_lights_dimmer(converted_value)
 
-def handle_color_fg(msg):
-    
-    pass
+    except ValueError:
+        logger.warn("Invalid message passed to handle_dimm: {}".format(message.payload))
 
-def handle_color_bg(msg):
-    pass
+def handle_color(message):
+    try:
+        new_color = msg_to_color(message)
+        LIGHTS.set_lights_color(new_color)
 
+    except ValueError:
+        logger.warn("Invalid message passed to handle_color: {}".format(message.payload))
 
+def handle_pattern(message):
+    try:
+        pattern_number = int(message.payload)
 
-# The callback for when the client receives a CONNACK response from the server.
-def on_connect(client, userdata, flags, rc):
-    print("Connected with result code "+str(rc))
-    
-    # Subscribing in on_connect() means that if we lose the connection and
-    # reconnect then subscriptions will be renewed.
-    client.subscribe("#")
+        new_pattern = (pattern_number / MAXIMUM_MQTT_INT_VALUE) * len(Pattern)
+
+        LIGHTS.set_pattern(new_pattern)
+
+    except ValueError:
+        logger.warn("Invalid message passed to handle_color: {}".format(message.payload))
+
+def handle_speed(message):
+    try:
+        speed_number = int(message.payload)
+
+        new_speed = (speed_number / MAXIMUM_MQTT_INT_VALUE)
+
+        LIGHTS.set_speed(new_speed)
+
+    except ValueError:
+        logger.warn("Invalid message passed to handle_speed: {}".format(message.payload))
+
 
 # The callback for when a PUBLISH message is received from the server.
-def on_message(client, userdata, msg):
-    print(msg.topic+" "+str(msg.payload))
 
-client = mqtt.Client()
-client.on_connect = on_connect
-client.on_message = on_message
 
-client.connect("127.0.0.1", 1883, 60)
-client.reconnect_delay_set(min_delay=1, max_delay=120)
 
-# Blocking call that processes network traffic, dispatches callbacks and
-# handles reconnecting.
-# Other loop*() functions are available that give a threaded interface and a
-# manual interface.
-client.loop_forever()

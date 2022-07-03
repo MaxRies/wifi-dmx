@@ -73,7 +73,7 @@ class Light:
                 raise ValueError("Wrong color object passed. To little values.")
         elif type(new_color) is str:
             #TODO Add dictionary of light names
-            pass
+            logger.warn(f"This color value cannot be handled: type:{type(new_color)}, value: {new_color}")
 
     @property
     def dimmer(self):

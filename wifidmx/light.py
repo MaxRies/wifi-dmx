@@ -1,3 +1,9 @@
+import logging
+logging.basicConfig(
+    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s", level=logging.INFO
+)
+logger = logging.getLogger('LightGroup')
+
 class Light:
     def __init__(self, channel):
         self._r = 0
@@ -56,16 +62,18 @@ class Light:
 
     @color.setter
     def color(self, new_color):
+        logger.info(f"Received {new_color}")
         if type(new_color) is list or type(new_color) is tuple:
             if len(new_color) == 3:
                 self.r = new_color[0]
                 self.g = new_color[1]
                 self.b = new_color[2]
+                logger.info(f"Set {self._channel} to {r},{g},{b}")
             else:
                 raise ValueError("Wrong color object passed. To little values.")
         elif type(new_color) is str:
             #TODO Add dictionary of light names
-            pass
+            logger.warn(f"This color value cannot be handled: type:{type(new_color)}, value: {new_color}")
 
     @property
     def dimmer(self):

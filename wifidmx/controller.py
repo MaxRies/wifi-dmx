@@ -49,13 +49,13 @@ def on_message(client, userdata, msg):
     topic = msg.topic
 
     if topic == DIMM_TOPIC:
-        handle_dimm(msg.payload)
+        handle_dimm(msg)
     elif topic == SPEED_TOPIC:
-        handle_speed(msg.payload)
+        handle_speed(msg)
     elif topic == COLOR_TOPIC:
-        handle_color(msg.payload)
+        handle_color(msg)
     elif topic == PATTERN_TOPIC:
-        handle_pattern(msg.payload)
+        handle_pattern(msg)
         
 
 """

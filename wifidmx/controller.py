@@ -213,6 +213,22 @@ if __name__ == "__main__":
         light = Light(i * channels_per_lamp + 1)
         LIGHTS.add_light(light)
 
+    LIGHTS.set_pattern(Pattern.SOLID)
+    LIGHTS.set_lights_color((0,255,0)
+    LIGHTS.set_lights_dimmer(1.0)
+    LIGHTS.render()
+    sleep(0.5)
+    LIGHTS.set_lights_dimmer(0.0)
+    LIGHTS.render()
+    LIGHTS.set_lights_dimmer(1.0)
+    LIGHTS.render()
+    sleep(0.5)
+    LIGHTS.set_lights_dimmer(0.0)
+    LIGHTS.render()LIGHTS.set_lights_dimmer(1.0)
+    LIGHTS.render()
+    sleep(0.5)
+    LIGHTS.set_lights_dimmer(0.0)
+    LIGHTS.render()
 
     while True:
         try:

@@ -1,6 +1,6 @@
 from cmath import pi
 from light import Light
-from plot_lights import draw_lights
+# from plot_lights import draw_lights
 
 from stupidArtnet import StupidArtnet
 

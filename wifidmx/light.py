@@ -68,7 +68,7 @@ class Light:
                 self.r = new_color[0]
                 self.g = new_color[1]
                 self.b = new_color[2]
-                logger.info(f"Set {self._channel} to {r},{g},{b}")
+                logger.info(f"Set {self._channel} to {self.r},{self.g},{self.b}")
             else:
                 raise ValueError("Wrong color object passed. To little values.")
         elif type(new_color) is str:

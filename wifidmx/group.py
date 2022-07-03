@@ -140,6 +140,9 @@ class LightGroup:
 
         # RENDERING
         self._last_render = 0.0
+
+        # Initial animation:
+        self._animation = 0
     
     def __repr__(self) -> str:
         repr = ""

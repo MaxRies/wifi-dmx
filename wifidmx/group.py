@@ -54,11 +54,12 @@ def render_dmx(lights):
         # channel_begin = index * channels_per_lamp + 1
 
         channel_begin = light.channel
+        r,g,b = light.dimmed_values()
         
         dmx_net.set_single_value(channel_begin, 241)
-        dmx_net.set_single_value(channel_begin+1, light.r)
-        dmx_net.set_single_value(channel_begin + 2, light.g)
-        dmx_net.set_single_value(channel_begin + 3, light.b)
+        dmx_net.set_single_value(channel_begin+1, r)
+        dmx_net.set_single_value(channel_begin + 2, g)
+        dmx_net.set_single_value(channel_begin + 3, b)
         dmx_net.set_single_value(channel_begin + 4, 0) # White
         dmx_net.set_single_value(channel_begin + 5, 0) # Mode
 
@@ -189,6 +190,22 @@ class LightGroup:
 
         for light in self._lights:
             light.dimmer = dimmer
+
+    def set_global_dimmer(self, dimmer):
+        """
+        Dimmer Value: [0.0, 1.0]
+        """
+        try:
+            dimmer = float(dimmer)
+        except ValueError:
+            logger.warn("Passed invalid input to set_lights_dimmer: {}".format(dimmer))
+        if dimmer < 0:
+            dimmer = 0.0
+        elif dimmer > 1:
+            dimmer = 1.0
+
+        self.dimmer = dimmer
+
 
     def set_pattern(self, new_pattern):
         """

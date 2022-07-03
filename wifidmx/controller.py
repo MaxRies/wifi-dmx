@@ -114,6 +114,7 @@ def msg_to_color(msg):
         color_index = int((picked_number / MAXIMUM_MQTT_INT_VALUE) * len(list_of_colors))
         color_name, values = list_of_colors[color_index]
         logger.info(f"color: {color_name}\tvalues:{values}")
+        return values
     except ValueError:
         # check if name is in dict:
         # we have a string in a dict, hopefully

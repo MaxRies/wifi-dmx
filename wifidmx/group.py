@@ -16,12 +16,11 @@ logging.basicConfig(
 logger = logging.getLogger('LightGroup')
 ### GLOBALS ####
 
-
 ### ARTNET RELATED ####
 # THESE ARE MOST LIKELY THE VALUES YOU WILL BE NEEDING
-target_ip = '2.0.0.1'		# typically in 2.x or 10.x range
+target_ip = '192.168.0.244'		# typically in 2.x or 10.x range
 universe = 0 										# see docs
-number_of_lamps = 5
+number_of_lamps = 16
 channels_per_lamp = 6
 packet_size = number_of_lamps * channels_per_lamp							# it is not necessary to send whole universe
 
@@ -41,10 +40,13 @@ for i in range(packet_size):			# fill packet with sequential values
 dmx_net.set(dmx_packet)						# only on changes
 
 
-
 ###### LIGHT RELATED ########
 FPS = 30.0
 
+
+logger.info(f"DMX IP: {target_ip}")
+logger.info(f"Number of lamps: {number_of_lamps}")
+logger.info(f"FPS: {FPS}")
 
 def print_light(values):
     for val in values:
@@ -64,7 +66,7 @@ def render_dmx(lights):
         dmx_net.set_single_value(channel_begin + 4, 0) # White
         dmx_net.set_single_value(channel_begin + 5, 0) # Mode
 
-        print(light)
+        logger.debug(light)
         
     dmx_net.show()
 

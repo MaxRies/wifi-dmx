@@ -4,6 +4,8 @@ class Light:
         self._g = 0
         self._b = 0
         self._channel = channel   # TODO Add channels
+        self._x = 0.0
+        self._y = 0.0
         self._dimmer = 1.00
     
     def __repr__(self) -> str:
@@ -59,7 +61,10 @@ class Light:
                 self.r = new_color[0]
                 self.g = new_color[1]
                 self.b = new_color[2]
+            else:
+                raise ValueError("Wrong color object passed. To little values.")
         elif type(new_color) is str:
+            #TODO Add dictionary of light names
             pass
 
     @property
@@ -74,7 +79,7 @@ class Light:
             new_dimmer = 0.0
         self._dimmer = new_dimmer
 
-    def scaled_values(self):
+    def dimmed_values(self):
         value_r = int(self._r * self._dimmer)
         value_g = int(self._g * self._dimmer)
         value_b = int(self._b * self._dimmer)
@@ -82,10 +87,18 @@ class Light:
 
     @property
     def float_values(self):
-        value_r = (self.r * self._dimmer) / 256.0
-        value_g = (self.g * self._dimmer) / 256.0
-        value_b = (self.b * self._dimmer) / 256.0
+        value_r = (self.r * self._dimmer) / 255.0
+        value_g = (self.g * self._dimmer) / 255.0
+        value_b = (self.b * self._dimmer) / 255.0
         return (value_r, value_g, value_b)
+
+
+    @float_values.setter
+    def float_values(self, new_vals):
+        assert len(new_vals) == 3
+        self.r = int(new_vals[0] * 255.0)
+        self.g = int(new_vals[1] * 255.0)
+        self.b = int(new_vals[2] * 255.0)
 
     @property
     def channel(self):

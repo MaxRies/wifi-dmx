@@ -52,9 +52,11 @@ def init_draw():
     plt.pause(1)
 
 def draw_lights(values):
-    plt.scatter(light_positions_x, light_positions_y, c=values, s=light_size)
-    plt.draw()
-    plt.pause(1 / 30.0)
+    colors = [light.float_values for light in values]
+    plt.clf()
+    plt.scatter(light_positions_x, light_positions_y, c=colors, s=light_size)
+    # plt.draw()
+    plt.pause(0.01)
 
 def draw_fade(rgb_array):
     steps = list(range(0, len(rgb_array)))

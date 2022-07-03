@@ -212,7 +212,7 @@ if __name__ == "__main__":
     for i in range (0,16):
         light = Light(i * channels_per_lamp + 1)
         LIGHTS.add_light(light)
-
+    logger.info("Blinking now...")
     LIGHTS.set_pattern(Pattern.SOLID)
     LIGHTS.set_lights_color((0,255,0))
     LIGHTS.set_lights_dimmer(1.0)
@@ -232,7 +232,7 @@ if __name__ == "__main__":
     sleep(0.5)
     LIGHTS.set_lights_dimmer(0.0)
     LIGHTS.render()
-
+    logger.info("Lets go!")
     while True:
         try:
             LIGHTS.loop()

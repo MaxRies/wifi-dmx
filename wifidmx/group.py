@@ -198,21 +198,24 @@ class LightGroup:
         """
         Expected Input: 0 -> len(Pattern)
         """
-        try:
-            new_pattern = int(new_pattern)
-        except ValueError:
-            logger.warn("Passed invalid input to set_pattern: {}".format(new_pattern))
-            logger.warn(type(new_pattern))
-
-        if new_pattern < 0:
-            new_pattern = 0
-        elif new_pattern >= len(Pattern):
-            new_pattern = len(Pattern) - 1
-        try:
-            self.pattern = Pattern(new_pattern)
-        except ValueError:
-            logger.warn("Passed invalid input to set_pattern: {}".format(new_pattern))
-            logger.warn(type(new_pattern))
+        if type(new_pattern) == Pattern:
+            self.pattern = new_pattern
+        else:
+            try:
+                new_pattern = int(new_pattern)
+            except ValueError:
+                logger.warn("Passed invalid input to set_pattern: {}".format(new_pattern))
+                logger.warn(type(new_pattern))
+    
+            if new_pattern < 0:
+                new_pattern = 0
+            elif new_pattern >= len(Pattern):
+                new_pattern = len(Pattern) - 1
+            try:
+                self.pattern = Pattern(new_pattern)
+            except ValueError:
+                logger.warn("Passed invalid input to set_pattern: {}".format(new_pattern))
+                logger.warn(type(new_pattern))
 
 
     def set_speed(self, new_speed):

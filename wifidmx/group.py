@@ -119,7 +119,7 @@ class LightGroup:
     def __init__(self) -> None:
         # FIXME for production!
         self.auto_animation = True
-        self.auto_beat = 0.5    # 2 bps = 120 bpm
+        self.auto_beat_interval = 0.5    # 2 bps = 120 bpm
 
         self._lights = None
         
@@ -354,28 +354,22 @@ class LightGroup:
             pass
 
     def beat(self):
+        logger.info("BEAT!")
         self._beat_interval = self._last_beat - time()
         self._last_beat = time()
         self._beat_used = False
 
 
     def check_for_beat(self):
+        # TODO
         # Check UDP Socket for beat
-
-
         if self.auto_animation:
-            if time() - self._last_beat > self.auto_beat:
-                self._last_beat = time()
-                logger.info("BEAT!")
+            if time() - self._last_beat > self.auto_beat_interval:
+                self.beat()
                 return True
             else:
                 return False
-        else:
-            if self._beat_used == False:
-                return True
-            else:
-                return False
-
+        
     def loop(self):
         # This function is called once per Frame.
         # It calls the appropriate functions to manipulate the light state and renders them.

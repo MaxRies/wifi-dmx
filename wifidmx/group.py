@@ -381,29 +381,29 @@ class LightGroup:
         # It calls the appropriate functions to manipulate the light state and renders them.
         now = time()
         # Check if we have a beat
-        self._beat_now = self.check_for_beat()
 
-
-        if self._animation == Pattern.FULL_FADE:
-            self.full_fade()
-        elif self._animation == Pattern.BEAT_CIRCLE:
-            self.beat_circle()
-        elif self._animation == Pattern.STROBE:
-            pass
-        elif self._animation == Pattern.BREATHE:
-            self.breathe()
-        elif self._animation == Pattern.SOLID:
-            self.solid()
-        elif self._animation == Pattern.BEAT_BLINK:
-            self.beat_blink()
-
-        # Only render with 30 FPS
         if now - self._last_render > 1/FPS:
+            self._beat_now = self.check_for_beat()
+
+            if self._animation == Pattern.FULL_FADE:
+                self.full_fade(self._beat_now)
+            elif self._animation == Pattern.BEAT_CIRCLE:
+                self.beat_circle()
+            elif self._animation == Pattern.STROBE:
+                pass
+            elif self._animation == Pattern.BREATHE:
+                self.breathe()
+            elif self._animation == Pattern.SOLID:
+                self.solid()
+            elif self._animation == Pattern.BEAT_BLINK:
+                self.beat_blink()
+
+            # Only render with 30 FPS
             self._render_function(self._lights)
             self._last_render = now
 
-        self._beat_now = False
-        self._beat_used = True
+            self._beat_now = False
+            self._beat_used = True
 
     
     @property

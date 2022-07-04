@@ -128,6 +128,10 @@ def msg_to_color(msg):
         picked_number = int(msg.payload)
         # we have a number
         color_index = int((picked_number / MAXIMUM_MQTT_INT_VALUE) * len(list_of_colors))
+        if color_index >= len(list_of_colors):
+            color_index = len(list_of_colors)-1
+        elif color_index < 0:
+            color_index = 0
         color_name, values = list_of_colors[color_index]
         logger.info(f"color: {color_name}\tvalues:{values}")
         return values

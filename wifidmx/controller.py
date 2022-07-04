@@ -214,11 +214,12 @@ def handle_auto(message):
 
         if new_auto < 30:
             LIGHTS.auto_animation = False
+            logger.info("Deactivated auto_animation.")
         else:
             LIGHTS.auto_animation = True
-            LIGHTS.auto_beat = new_auto
+            LIGHTS.auto_beat = 60 / new_auto
             LIGHTS._beat_interval = 60 / new_auto
-
+            logger.info("Activated auto_animation.")
         logger.info(f"Set auto_bpm to {new_auto}")
 
     except ValueError:

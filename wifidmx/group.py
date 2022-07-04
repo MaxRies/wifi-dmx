@@ -99,6 +99,7 @@ class Pattern(Enum):
     BEAT_CIRCLE = 2
     STROBE = 3
     SOLID = 4
+    BEAT_BLINK = 5
 
 
 class LightGroup:
@@ -317,7 +318,7 @@ class LightGroup:
     def breathe(self):
         # Pattern: Just breathe steadily
         now = time()
-        breathe_time = 3
+        breathe_time = 4 * self._beat_interval
 
         dimmer_value = 0.5 * sin((2*pi / breathe_time) * (now - self._animation_start)) + 0.5 
 
@@ -335,6 +336,16 @@ class LightGroup:
     FOREGROUND
     #####################################
     """
+
+    def beat_blink(self):
+        if self._beat_used == False:
+            for light in self._lights:
+                light.color = self._fg_color
+            self._beat_used = True
+        else:
+            for light in self._lights:
+                light.color = self._bg_color
+
 
     def ball(self):
         if not self._beat_used:
@@ -382,6 +393,8 @@ class LightGroup:
             self.breathe()
         elif self._animation == Pattern.SOLID:
             self.solid()
+        elif self._animation == Pattern.BEAT_BLINK:
+            self.beat_blink()
 
         # Only render with 30 FPS
         if now - self._last_render > 1/FPS:

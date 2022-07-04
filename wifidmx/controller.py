@@ -15,11 +15,17 @@ DIMM_ST = "Dimm"
 SPEED_ST = "Speed"
 COLOR_ST = "Color"
 PATTERN_ST = "Pattern"
+FG_COLOR_ST = "fgColor"
+BG_COLOR_ST = "bgColor"
+AUTO_ST = "AutomaticBPM"
 
 DIMM_TOPIC = f"{BASE_TOPIC}/{DIMM_ST}"
 SPEED_TOPIC = f"{BASE_TOPIC}/{SPEED_ST}"
 COLOR_TOPIC = f"{BASE_TOPIC}/{COLOR_ST}"
+FG_COLOR_TOPIC = f"{BASE_TOPIC}/{FG_COLOR_ST}"
+BG_COLOR_TOPIC = f"{BASE_TOPIC}/{BG_COLOR_ST}"
 PATTERN_TOPIC = f"{BASE_TOPIC}/{PATTERN_ST}"
+AUTO_TOPIC = f"{BASE_TOPIC}/{AUTO_ST}"
 
 
 
@@ -42,7 +48,11 @@ def on_connect(client, userdata, flags, rc):
     subscribe(client, DIMM_TOPIC)
     subscribe(client, SPEED_TOPIC)
     subscribe(client, COLOR_TOPIC)
+    subscribe(client, FG_COLOR_TOPIC)
+    subscribe(client, BG_COLOR_TOPIC)
     subscribe(client, PATTERN_TOPIC)
+    subscribe(client, AUTO_TOPIC)
+
 
 def on_message(client, userdata, msg):
     logger.info(msg.topic+" "+str(msg.payload))
@@ -54,21 +64,27 @@ def on_message(client, userdata, msg):
         handle_speed(msg)
     elif topic == COLOR_TOPIC:
         handle_color(msg)
+    elif topic == FG_COLOR_TOPIC:
+        handle_fg_color(msg)
+    elif topic == BG_COLOR_TOPIC:
+        handle_bg_color(msg)
     elif topic == PATTERN_TOPIC:
         handle_pattern(msg)
+    elif topic == AUTO_TOPIC:
+        handle_auto(msg)
         
 
 """
 Outline:
 [X] Connection Handling
 [X] Error Handling (Reconnect after disconnect!)
-[ ] Make Topics configurable
+[X] Make Topics configurable
 [ ] Topics:
-    - ColorFG
-    - ColorBG
-    - ColorMix
-    - Pattern
-    - Speed
+    - ColorFG DONE
+    - ColorBG DONE
+    - ColorMix 
+    - Pattern DONE
+    - Speed DONE
     - AutoMove yes no
     - 
 [ ] Beat Detection
@@ -140,10 +156,30 @@ def handle_color(message):
     try:
         new_color = msg_to_color(message)
         LIGHTS._fg_color(new_color)
+        # TODO Write multiple fitting color schemes
         logger.info(f"Set color to {new_color}")
 
     except ValueError:
         logger.warn("Invalid message passed to handle_color: {}".format(message.payload))
+
+def handle_fg_color(message):
+    try:
+        new_color = msg_to_color(message)
+        LIGHTS._fg_color = new_color
+        logger.info(f"Set fg_color to {new_color}")
+
+    except ValueError:
+        logger.warn("Invalid message passed to handle_color: {}".format(message.payload))
+
+def handle_bg_color(message):
+    try:
+        new_color = msg_to_color(message)
+        LIGHTS._bg_color = new_color
+        logger.info(f"Set bg_color to {new_color}")
+
+    except ValueError:
+        logger.warn("Invalid message passed to handle_color: {}".format(message.payload))
+
 
 def handle_pattern(message):
     try:
@@ -165,6 +201,25 @@ def handle_speed(message):
 
         LIGHTS.set_speed(new_speed)
         logger.info(f"Set lights speed to {new_speed}")
+
+    except ValueError:
+        logger.warn("Invalid message passed to handle_speed: {}".format(message.payload))
+
+def handle_auto(message):
+    try:
+        auto_number = int(message.payload)
+
+        new_auto = (auto_number / MAXIMUM_MQTT_INT_VALUE) * 240
+
+
+        if new_auto < 30:
+            LIGHTS.auto_animation = False
+        else:
+            LIGHTS.auto_animation = True
+            LIGHTS.auto_beat = new_auto
+            LIGHTS._beat_interval = 60 / new_auto
+
+        logger.info(f"Set auto_bpm to {new_auto}")
 
     except ValueError:
         logger.warn("Invalid message passed to handle_speed: {}".format(message.payload))

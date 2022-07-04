@@ -155,7 +155,7 @@ def handle_dimm(message):
 def handle_color(message):
     try:
         new_color = msg_to_color(message)
-        LIGHTS._fg_color(new_color)
+        LIGHTS._fg_color = new_color
         # TODO Write multiple fitting color schemes
         logger.info(f"Set color to {new_color}")
 

@@ -162,9 +162,10 @@ class LightGroup:
         self._render_function(self._lights)
 
     def reset_timers(self):
-        self._last_strobe_on = time()
-        self._last_strobe_off = time()
-        self._animation_start = time()
+        now = time()
+        self._last_strobe_on = now
+        self._last_strobe_off = now
+        self._animation_start = now
 
     def add_light(self, light: Light):
         if self._lights is None:
@@ -297,12 +298,12 @@ class LightGroup:
         animation_fraction = (time() - self._animation_start) / time_for_lap
 
         if animation_fraction > 1.0:
-            logger.info("Animation_fraction bigger than 1.0")
+            logger.debug("Animation_fraction bigger than 1.0")
             self.reset_timers()
         else:
             self.fade()
             current_position = (int(lights_per_lap * animation_fraction) % 16)
-            logger.info(f"Animation_fraction: {animation_fraction} Position: {current_position}")
+            logger.debug(f"Animation_fraction: {animation_fraction} Position: {current_position}")
             self._lights[current_position].color = self._fg_color
 
 

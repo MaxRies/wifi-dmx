@@ -119,6 +119,7 @@ class LightGroup:
         self._old_pattern = Pattern.SOLID
         self._strobe_start = 0.0
         self._strobe_end = 0.0
+        self._short_strobe = False
 
         # effect timers
         self._animation_start = 0.0
@@ -383,6 +384,7 @@ class LightGroup:
         self._old_pattern = self.pattern
         self._strobe_start = now
         self._strobe_end = now + length
+        self._short_strobe = True
 
     def beat(self):
         logger.info("BEAT!")
@@ -424,10 +426,12 @@ class LightGroup:
         if now < self._strobe_end:
             self._animation = Pattern.STROBE
         else:
-            if self._old_pattern != Pattern.STROBE:
-                self._animation = self._old_pattern
-            else:
-                self._animation = Pattern.SOLID
+            if self._short_strobe:
+                if self._old_pattern != Pattern.STROBE:
+                    self._animation = self._old_pattern
+                else:
+                    self._animation = Pattern.SOLID
+                self._short_strobe = False
 
         if now - self._last_render > 1/FPS:
             self._beat_now = self.check_for_beat()

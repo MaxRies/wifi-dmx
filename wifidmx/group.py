@@ -49,12 +49,15 @@ logger.info(f"Number of lamps: {number_of_lamps}")
 logger.info(f"FPS: {FPS}")
 
 
-def render_dmx(lights):
+def render_dmx(lights, dimmer):
     for index, light in enumerate(lights):
         # channel_begin = index * channels_per_lamp + 1
 
         channel_begin = light.channel
         r,g,b = light.dimmed_values()
+        r *= dimmer
+        g *= dimmer
+        b *= dimmer
         
         dmx_net.set_single_value(channel_begin, 241)
         dmx_net.set_single_value(channel_begin+1, r)
@@ -159,7 +162,7 @@ class LightGroup:
         self._render_function = function
 
     def render(self):
-        self._render_function(self._lights)
+        self._render_function(self._lights, self._dimmer)
 
     def reset_timers(self):
         now = time()

@@ -31,6 +31,16 @@ AUTO_TOPIC = f"{BASE_TOPIC}/{AUTO_ST}"
 
 
 
+#################### LIGHT STUFF
+channels_per_lamp = 6
+num_lights = 16
+
+LIGHTS = LightGroup()
+for i in range (0,16):
+    light = Light(i * channels_per_lamp + 1)
+LIGHTS.add_light(light)
+
+
 ############## MQTT STUFF ################
 MQTT_HOST = "127.0.0.1"
 MQTT_PORT = 1883
@@ -275,14 +285,7 @@ if __name__ == "__main__":
 
 
 
-    #################### LIGHT STUFF
-    channels_per_lamp = 6
-    num_lights = 16
 
-    LIGHTS = LightGroup()
-    for i in range (0,16):
-        light = Light(i * channels_per_lamp + 1)
-        LIGHTS.add_light(light)
     logger.info("Blinking now...")
     LIGHTS.set_pattern(Pattern.SOLID)
     LIGHTS.set_lights_color((0,255,0))

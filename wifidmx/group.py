@@ -294,11 +294,12 @@ class LightGroup:
         self.rotate_forward()
 
     def fade(self, factor = 0.8):
-        self.dimmer = self._animation_dimmer * factor
+        self._animation_dimmer = self._animation_dimmer * factor
 
     def fill(self, color):
         for light in self._lights:
             light.color = color
+            light.dimmer = 1.0
 
     def beat_circle(self, per_bar=False):
         # Pattern: One full light circle for each beat
@@ -327,7 +328,7 @@ class LightGroup:
         if beat_now is True:
             self.fill(self._fg_color)
             self._animation_dimmer = 1.0
-            logger.debug("FULL FADE FILL")
+            logger.info("FULL FADE FILL")
         else:
             self.fade(0.8)
 

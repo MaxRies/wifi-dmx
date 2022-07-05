@@ -120,6 +120,7 @@ class LightGroup:
         self._pattern_start = 0.0
 
         self._beat_circle_start = 0.0
+        self._breathe_start = 0.0
 
         self._beat_interval = 0.5
         self._last_beat = 0.0
@@ -149,6 +150,7 @@ class LightGroup:
                 dmx_net.set_single_value(channel_begin, 239)
             else:
                 dmx_net.set_single_value(channel_begin, 241)
+
             dmx_net.set_single_value(channel_begin+1, int(r * dimmer))
             dmx_net.set_single_value(channel_begin + 2, int(g * dimmer))
             dmx_net.set_single_value(channel_begin + 3, int(b * dimmer))
@@ -283,8 +285,9 @@ class LightGroup:
         self.rotate_forward()
 
     def fade(self, factor = 0.8):
-        for light in self._lights:
-            light.dimmer = light.dimmer * factor
+        self.dimmer = self.dimmer * factor
+        # for light in self._lights:
+        #     light.dimmer = light.dimmer * factor
 
     def fill(self, color):
         for light in self._lights:
@@ -325,7 +328,7 @@ class LightGroup:
         now = time()
         breathe_time = 4 * self._beat_interval
 
-        dimmer_value = 0.5 * sin((2*pi / breathe_time) * (now - self._animation_start)) + 0.5 
+        dimmer_value = 0.5 * sin((2*pi / breathe_time) * (now - self._breathe_start)) + 0.5 
 
         self.fill(self._fg_color)
         self.set_global_dimmer(dimmer_value)
@@ -432,6 +435,8 @@ class LightGroup:
     def pattern(self, new_pattern):
             self._animation = Pattern(new_pattern)
             self._pattern_start = time()
+            self._breathe_start = time()
+            self._beat_circle_start = time()
             logger.info(f"Set pattern to {self._animation}")
 
 

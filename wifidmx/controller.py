@@ -2,6 +2,8 @@ import paho.mqtt.client as mqtt
 import logging
 from time import sleep
 
+import communicator as comm
+
 from light import Light
 from group import LightGroup, Pattern
 
@@ -73,6 +75,14 @@ def on_message(client, userdata, msg):
     elif topic == AUTO_TOPIC:
         handle_auto(msg)
         
+
+"""
+##############################
+UDP STUFF
+##############################
+"""
+UDPSERVER = comm.spawn_udp_server()
+
 
 """
 Outline:
@@ -150,7 +160,7 @@ def handle_dimm(message):
         elif converted_value > 1.0:
             converted_value = 1.0
 
-        LIGHTS.set_lights_dimmer(converted_value)
+        LIGHTS.set_global_dimmer(converted_value)
         logger.info(f"Set dimmer to {converted_value}")
 
     except ValueError:
@@ -297,6 +307,10 @@ if __name__ == "__main__":
     while True:
         try:
             LIGHTS.loop()
+            beat = comm.beat_detected()
+            if beat:
+                LIGHTS.beat()
+                logger.info("CHRISTOPHBEAT")
         except KeyboardInterrupt:
             break
 

@@ -405,7 +405,7 @@ class LightGroup:
                 self.beat_blink()
 
             # Only render with 30 FPS
-            self._render_function(self._lights)
+            self._render_function(self._lights, self._dimmer)
             self._last_render = now
 
             self._beat_now = False

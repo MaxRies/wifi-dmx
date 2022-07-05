@@ -112,6 +112,7 @@ class LightGroup:
 
         self._fg_color = (255, 0, 0)
         self._bg_color = (0, 0, 80)
+        self._strobe_color = (255, 255, 255)
 
         self._render_function = self.render_dmx
 
@@ -442,6 +443,8 @@ class LightGroup:
                     self._animation = self._old_pattern
                 else:
                     self._animation = Pattern.SOLID
+                for light in self._lights:
+                    light.color = self._fg_color
                 self._short_strobe = False
 
         if now - self._last_render > 1/FPS:
@@ -455,12 +458,12 @@ class LightGroup:
                 self.beat_circle(per_bar=True)
             elif self._animation == Pattern.STROBE:
                 for light in self._lights:
-                    light.color = self._fg_color
+                    light.color = self._strobe_color
                 self._strobe_on = True
             elif self._animation == Pattern.BREATHE:
                 self._strobe_on = False
                 self.breathe()
-            elif self._animation == Pattern.BREATHE:
+            elif self._animation == Pattern.BREATHE_FAST:
                 self._strobe_on = False
                 self.breathe_fast()
             elif self._animation == Pattern.SOLID:

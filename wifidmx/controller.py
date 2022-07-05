@@ -155,7 +155,7 @@ def limit_rgb(value):
         new_value = 255
     else:
         new_value = value
-    return int(new_value)
+    return new_value
 
 def string_to_color(colorstring: str):
     """
@@ -166,9 +166,9 @@ def string_to_color(colorstring: str):
     colorstring = colorstring.replace(")", "")
     try:
         r,g,b = colorstring.split(",")
-        r = limit_rgb(r)
-        g = limit_rgb(g)
-        b = limit_rgb(b)
+        r = limit_rgb(int(r))
+        g = limit_rgb(int(g))
+        b = limit_rgb(int(b))
         return (r,g,b)
     except ValueError:
         logger.warn("Wrong format for colorstring. r,g,b only.")

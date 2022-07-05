@@ -5,10 +5,16 @@ logging.basicConfig(
 logger = logging.getLogger('LightGroup')
 
 class Light:
+    ON = 241
+    STROBE = 239
+
     def __init__(self, channel):
+        self._mode = Light.ON # ON
         self._r = 0
         self._g = 0
         self._b = 0
+        self._white = 0
+        self._auto = 0
         self._channel = channel   # TODO Add channels
         self._x = 0.0
         self._y = 0.0
@@ -111,6 +117,19 @@ class Light:
     @property
     def channel(self):
         return self._channel
+
+    @property
+    def strobe(self):
+        return self._strobe
+
+    @strobe.setter:
+    def strobe(self, bool_on):
+        if bool_on:
+            self._strobe = True
+            self._mode = Light.STROBE
+        else:
+            self._strobe = False
+            self._mode = Light.ON
 
 
 class DMXLight(Light):

@@ -21,6 +21,7 @@ FG_COLOR_ST = "fgColor"
 BG_COLOR_ST = "bgColor"
 AUTO_ST = "AutomaticBPM"
 SHORT_STROBE = "shortStrobe"
+STROBE_COLOR = "strobeColor"
 
 DIMM_TOPIC = f"{BASE_TOPIC}/{DIMM_ST}"
 SPEED_TOPIC = f"{BASE_TOPIC}/{SPEED_ST}"
@@ -30,6 +31,7 @@ BG_COLOR_TOPIC = f"{BASE_TOPIC}/{BG_COLOR_ST}"
 PATTERN_TOPIC = f"{BASE_TOPIC}/{PATTERN_ST}"
 AUTO_TOPIC = f"{BASE_TOPIC}/{AUTO_ST}"
 SHORT_STROBE_TOPIC = f"{BASE_TOPIC}/{SHORT_STROBE}"
+STROBE_COLOR_TOPIC = f"{BASE_TOPIC}/{STROBE_COLOR}"
 
 
 
@@ -67,6 +69,7 @@ def on_connect(client, userdata, flags, rc):
     subscribe(client, PATTERN_TOPIC)
     subscribe(client, AUTO_TOPIC)
     subscribe(client, SHORT_STROBE_TOPIC)
+    subscribe(client, STROBE_COLOR_TOPIC)
     
 
 def on_message(client, userdata, msg):
@@ -89,7 +92,8 @@ def on_message(client, userdata, msg):
         handle_auto(msg)
     elif topic == SHORT_STROBE_TOPIC:
         handle_short_strobe(msg)
-        
+    elif topic == STROBE_COLOR_TOPIC:
+        handle_strobe_color(msg)
 
 """
 ##############################
@@ -138,6 +142,7 @@ def string_to_color(colorstring: str):
     if colorstring.lower() in colors.keys():
         return colors[colorstring.lower()]
     else:
+        if 
         # check if we have a tuple as string
         pass
 
@@ -261,6 +266,15 @@ def handle_short_strobe(message):
         logger.info(f"Short Strobe for {seconds}")
     except ValueError:
         logger.warn("Invalid message passed to handle_short_strobe: {}".format(message.payload))
+
+def handle_strobe_color(message):
+    try:
+        new_color = msg_to_color(message)
+        LIGHTS._strobe_color = new_color
+        logger.info(f"Set strobe_color to {new_color}")
+
+    except ValueError:
+        logger.warn("Invalid message passed to handle_strobe_color: {}".format(message.payload))
 
 
 # The callback for when a PUBLISH message is received from the server.

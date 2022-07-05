@@ -116,6 +116,10 @@ class LightGroup:
 
         self._strobe_on = False
 
+        self._old_pattern = Pattern.SOLID
+        self._strobe_start = 0.0
+        self._strobe_end = 0.0
+
         # effect timers
         self._animation_start = 0.0
         self._pattern_start = 0.0
@@ -145,15 +149,19 @@ class LightGroup:
             # channel_begin = index * channels_per_lamp + 1
 
             channel_begin = light.channel
-            r,g,b = light.dimmed_values()
 
             if self._strobe_on:
                 dmx_net.set_single_value(channel_begin, 239)
+                self._animation_dimmer = 1.0
+                self._dimmer = 1.0
+                for light in lights:
+                    light.dimmer = 1.0
                 logger.debug("Strobe on")
             else:
                 dmx_net.set_single_value(channel_begin, 241)
                 logger.debug("Strobe off")
 
+            r,g,b = light.dimmed_values()
 
             global_dimmed_r = int(r * dimmer * self._animation_dimmer)
             global_dimmed_g = int(g * dimmer * self._animation_dimmer)
@@ -369,6 +377,12 @@ class LightGroup:
         if not self._beat_used:
             # Spawn a new ball
             pass
+    
+    def short_strobe(self, length=0.5):
+        now = time()
+        self._old_pattern = self.pattern
+        self._strobe_start = now
+        self._strobe_end = now + length
 
     def beat(self):
         logger.info("BEAT!")
@@ -407,6 +421,10 @@ class LightGroup:
         # It calls the appropriate functions to manipulate the light state and renders them.
         now = time()
         # Check if we have a beat
+        if now < self._strobe_end:
+            self._animation = Pattern.STROBE
+        else:
+            self._animation = self._old_pattern
 
         if now - self._last_render > 1/FPS:
             self._beat_now = self.check_for_beat()

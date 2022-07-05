@@ -20,6 +20,7 @@ PATTERN_ST = "Pattern"
 FG_COLOR_ST = "fgColor"
 BG_COLOR_ST = "bgColor"
 AUTO_ST = "AutomaticBPM"
+SHORT_STROBE = "shortStrobe"
 
 DIMM_TOPIC = f"{BASE_TOPIC}/{DIMM_ST}"
 SPEED_TOPIC = f"{BASE_TOPIC}/{SPEED_ST}"
@@ -28,6 +29,7 @@ FG_COLOR_TOPIC = f"{BASE_TOPIC}/{FG_COLOR_ST}"
 BG_COLOR_TOPIC = f"{BASE_TOPIC}/{BG_COLOR_ST}"
 PATTERN_TOPIC = f"{BASE_TOPIC}/{PATTERN_ST}"
 AUTO_TOPIC = f"{BASE_TOPIC}/{AUTO_ST}"
+SHORT_STROBE_TOPIC = f"{BASE_TOPIC}/{SHORT_STROBE}"
 
 
 
@@ -64,7 +66,8 @@ def on_connect(client, userdata, flags, rc):
     subscribe(client, BG_COLOR_TOPIC)
     subscribe(client, PATTERN_TOPIC)
     subscribe(client, AUTO_TOPIC)
-
+    subscribe(client, SHORT_STROBE_TOPIC)
+    
 
 def on_message(client, userdata, msg):
     logger.info(msg.topic+" "+str(msg.payload))
@@ -84,6 +87,8 @@ def on_message(client, userdata, msg):
         handle_pattern(msg)
     elif topic == AUTO_TOPIC:
         handle_auto(msg)
+    elif topic == SHORT_STROBE_TOPIC:
+        handle_short_strobe(msg)
         
 
 """
@@ -248,6 +253,14 @@ def handle_auto(message):
 
     except ValueError:
         logger.warn("Invalid message passed to handle_speed: {}".format(message.payload))
+
+def handle_short_strobe(message):
+    try:
+        seconds = float(message.payload)
+        LIGHTS.short_strobe(seconds)
+        logger.info(f"Short Strobe for {seconds}")
+    except ValueError:
+        logger.warn("Invalid message passed to handle_short_strobe: {}".format(message.payload))
 
 
 # The callback for when a PUBLISH message is received from the server.

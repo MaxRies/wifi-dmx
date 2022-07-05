@@ -155,7 +155,7 @@ def limit_rgb(value):
         new_value = 255
     else:
         new_value = value
-    return new_value
+    return int(new_value)
 
 def string_to_color(colorstring: str):
     """

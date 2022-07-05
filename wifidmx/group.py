@@ -117,6 +117,9 @@ class LightGroup:
 
         # effect timers
         self._animation_start = 0.0
+        self._pattern_start = 0.0
+
+        self._beat_circle_start = 0.0
 
         self._beat_interval = 0.5
         self._last_beat = 0.0
@@ -169,8 +172,6 @@ class LightGroup:
 
     def reset_timers(self):
         now = time()
-        self._last_strobe_on = now
-        self._last_strobe_off = now
         self._animation_start = now
 
     def add_light(self, light: Light):
@@ -298,11 +299,11 @@ class LightGroup:
 
         lights_per_lap = len(self._lights)
 
-        animation_fraction = (time() - self._animation_start) / time_for_lap
+        animation_fraction = (time() - self._beat_circle_start) / time_for_lap
 
         if animation_fraction > 1.0:
             logger.debug("Animation_fraction bigger than 1.0")
-            self.reset_timers()
+            self._beat_circle_start = time()
         else:
             self.fade()
             current_position = (int(lights_per_lap * animation_fraction) % 16)
@@ -430,6 +431,7 @@ class LightGroup:
     @pattern.setter
     def pattern(self, new_pattern):
             self._animation = Pattern(new_pattern)
+            self._pattern_start = time()
             logger.info(f"Set pattern to {self._animation}")
 
 

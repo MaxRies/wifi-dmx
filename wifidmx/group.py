@@ -439,6 +439,8 @@ class LightGroup:
                 self._strobe_on = False
                 self.beat_circle(per_bar=True)
             elif self._animation == Pattern.STROBE:
+                for light in self._lights:
+                    light.color = self._fg_color
                 self._strobe_on = True
             elif self._animation == Pattern.BREATHE:
                 self._strobe_on = False

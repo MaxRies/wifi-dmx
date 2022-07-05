@@ -22,6 +22,9 @@ BG_COLOR_ST = "bgColor"
 AUTO_ST = "AutomaticBPM"
 SHORT_STROBE = "shortStrobe"
 STROBE_COLOR = "strobeColor"
+FG_COLOR_STRING = "fgColorString"
+BG_COLOR_STRING = "bgColorString"
+STROBE_COLOR_STRING = "strobeColorString"
 
 DIMM_TOPIC = f"{BASE_TOPIC}/{DIMM_ST}"
 SPEED_TOPIC = f"{BASE_TOPIC}/{SPEED_ST}"
@@ -32,6 +35,9 @@ PATTERN_TOPIC = f"{BASE_TOPIC}/{PATTERN_ST}"
 AUTO_TOPIC = f"{BASE_TOPIC}/{AUTO_ST}"
 SHORT_STROBE_TOPIC = f"{BASE_TOPIC}/{SHORT_STROBE}"
 STROBE_COLOR_TOPIC = f"{BASE_TOPIC}/{STROBE_COLOR}"
+FG_COLOR_STRING_TOPIC = f"{BASE_TOPIC}/{FG_COLOR_STRING}"
+BG_COLOR_STRING_TOPIC = f"{BASE_TOPIC}/{BG_COLOR_STRING}"
+STROBE_COLOR_STRING_TOPIC = f"{BASE_TOPIC}/{STROBE_COLOR_STRING}"
 
 
 
@@ -70,6 +76,9 @@ def on_connect(client, userdata, flags, rc):
     subscribe(client, AUTO_TOPIC)
     subscribe(client, SHORT_STROBE_TOPIC)
     subscribe(client, STROBE_COLOR_TOPIC)
+    subscribe(client, FG_COLOR_STRING_TOPIC)
+    subscribe(client, BG_COLOR_STRING_TOPIC)
+    subscribe(client, STROBE_COLOR_STRING_TOPIC)
     
 
 def on_message(client, userdata, msg):
@@ -94,7 +103,12 @@ def on_message(client, userdata, msg):
         handle_short_strobe(msg)
     elif topic == STROBE_COLOR_TOPIC:
         handle_strobe_color(msg)
-
+    elif topic == FG_COLOR_STRING_TOPIC:
+        handle_fg_color_string(msg)
+    elif topic == BG_COLOR_STRING_TOPIC:
+        handle_bg_color_string(msg)
+    elif topic == STROBE_COLOR_STRING_TOPIC:
+        handle_strobe_color_string(msg)
 """
 ##############################
 UDP STUFF
@@ -134,17 +148,31 @@ colors = {
         "black": (0,0,0)
     }
 
+def limit_rgb(value):
+    if value < 0:
+        new_value = 0
+    elif value > 255:
+        new_value = 255
+    else:
+        new_value = value
+    return int(new_value)
+
 def string_to_color(colorstring: str):
     """
     Returns Tuple (R, g, b) or None
     """
-    # let's see if the value is in the dict
-    if colorstring.lower() in colors.keys():
-        return colors[colorstring.lower()]
-    else:
-        if 
-        # check if we have a tuple as string
-        pass
+    # Check if we start with a (
+    colorstring = colorstring.replace("(", "")
+    colorstring = colorstring.replace(")", "")
+    try:
+        r,g,b = colorstring.split(",")
+        r = limit_rgb(r)
+        g = limit_rgb(g)
+        b = limit_rgb(b)
+        return (r,g,b)
+    except ValueError:
+        logger.warn("Wrong format for colorstring. r,g,b only.")
+        return None
 
 
 def msg_to_color(msg):
@@ -168,8 +196,8 @@ def msg_to_color(msg):
     except ValueError:
         # check if name is in dict:
         # we have a string in a dict, hopefully
-        values = string_to_color(msg.payload)
-        return values
+        logger.warn("Invalid Value for color topic!")
+        return None
 
 def handle_dimm(message):
     try:
@@ -275,6 +303,37 @@ def handle_strobe_color(message):
 
     except ValueError:
         logger.warn("Invalid message passed to handle_strobe_color: {}".format(message.payload))
+
+def handle_fg_color_string(message):
+    try:
+        new_color = string_to_color(message.payload)
+        LIGHTS._fg_color = new_color
+        logger.info(f"Set fg_color to {new_color}")
+    except ValueError:
+        logger.warn(f"Invalid message passed to handle_fg_color_string: {message.payload}")
+    except TypeError:
+        logger.warn(f"Invalid message type passed to handle_fg_color_string: {type(message.payload)}")
+
+def handle_bg_color_string(message):
+    try:
+        new_color = string_to_color(message.payload)
+        LIGHTS._bg_color = new_color
+        logger.info(f"Set bg_color to {new_color}")
+    except ValueError:
+        logger.warn(f"Invalid message passed to handle_bg_color_string: {message.payload}")
+    except TypeError:
+        logger.warn(f"Invalid message type passed to handle_bg_color_string: {type(message.payload)}")
+
+def handle_strobe_color_string(message):
+    try:
+        new_color = string_to_color(message.payload)
+        LIGHTS._strobe_color = new_color
+        logger.info(f"Set _strobe_color to {new_color}")
+    except ValueError:
+        logger.warn(f"Invalid message passed to handle_strobe_color_string: {message.payload}")
+    except TypeError:
+        logger.warn(f"Invalid message type passed to handle_strobe_color_string: {type(message.payload)}")
+
 
 
 # The callback for when a PUBLISH message is received from the server.

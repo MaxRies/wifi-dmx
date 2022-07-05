@@ -38,7 +38,7 @@ num_lights = 16
 LIGHTS = LightGroup()
 for i in range (0,16):
     light = Light(i * channels_per_lamp + 1)
-LIGHTS.add_light(light)
+    LIGHTS.add_light(light)
 
 
 ############## MQTT STUFF ################

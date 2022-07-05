@@ -122,7 +122,7 @@ class Light:
     def strobe(self):
         return self._strobe
 
-    @strobe.setter:
+    @strobe.setter
     def strobe(self, bool_on):
         if bool_on:
             self._strobe = True

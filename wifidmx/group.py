@@ -82,6 +82,7 @@ class Pattern(Enum):
     BEAT_BLINK = 3
     BEAT_CIRCLE = 4
     STROBE = 5
+    BREATHE_FAST = 6
 
 
 class LightGroup:
@@ -351,6 +352,16 @@ class LightGroup:
         self.fill(self._fg_color)
         self._animation_dimmer = dimmer_value
 
+    def breathe_fast(self):
+        # Pattern: Just breathe steadily
+        now = time()
+        breathe_time = self._beat_interval
+
+        dimmer_value = 0.5 * sin((2*pi / breathe_time) * (now - self._breathe_start)) + 0.5 
+
+        self.fill(self._fg_color)
+        self._animation_dimmer = dimmer_value
+
     def solid(self):
         self.fill(self._fg_color)
         self.set_lights_dimmer(self._dimmer)
@@ -449,6 +460,9 @@ class LightGroup:
             elif self._animation == Pattern.BREATHE:
                 self._strobe_on = False
                 self.breathe()
+            elif self._animation == Pattern.BREATHE:
+                self._strobe_on = False
+                self.breathe_fast()
             elif self._animation == Pattern.SOLID:
                 self._strobe_on = False
                 self.solid()

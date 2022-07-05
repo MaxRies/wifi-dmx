@@ -14,7 +14,7 @@ logging.basicConfig(
     format="%(asctime)s - %(name)s - %(levelname)s - %(message)s", level=logging.INFO
 )
 logger = logging.getLogger('LightGroup')
-logger.setLevel(logging.DEBUG)
+logger.setLevel(logging.INFO)
 ### GLOBALS ####
 
 ### ARTNET RELATED ####
@@ -50,27 +50,6 @@ logger.info(f"Number of lamps: {number_of_lamps}")
 logger.info(f"FPS: {FPS}")
 
 
-def render_dmx(lights, dimmer):
-    for index, light in enumerate(lights):
-        # channel_begin = index * channels_per_lamp + 1
-
-        channel_begin = light.channel
-        r,g,b = light.dimmed_values()
-        
-        dmx_net.set_single_value(channel_begin, 241)
-        dmx_net.set_single_value(channel_begin+1, int(r * dimmer))
-        dmx_net.set_single_value(channel_begin + 2, int(g * dimmer))
-        dmx_net.set_single_value(channel_begin + 3, int(b * dimmer))
-        dmx_net.set_single_value(channel_begin + 4, 0) # White
-        dmx_net.set_single_value(channel_begin + 5, 0) # Mode
-        logger.debug(light)
-
-        
-        
-    logger.debug(dmx_packet)
-    dmx_net.show()
-
-
 class Ball():
     def __init__(self, color, speed, num_lights):
         # Idea: A ball is a small effect that travels all the lights and then disappears.
@@ -97,12 +76,12 @@ class Ball():
 
 
 class Pattern(Enum):
-    BREATHE = 0
-    FULL_FADE = 1
-    BEAT_CIRCLE = 2
-    STROBE = 3
-    SOLID = 4
-    BEAT_BLINK = 5
+    SOLID = 0
+    BREATHE = 1
+    FULL_FADE = 2
+    BEAT_BLINK = 3
+    BEAT_CIRCLE = 4
+    STROBE = 5
 
 
 class LightGroup:
@@ -132,7 +111,7 @@ class LightGroup:
         self._fg_color = (255, 0, 0)
         self._bg_color = (0, 0, 80)
 
-        self._render_function = render_dmx
+        self._render_function = self.render_dmx
 
         # effect timers
         self._animation_start = 0.0
@@ -153,6 +132,28 @@ class LightGroup:
             repr += str(light)
             repr += "\n"
         return repr
+
+    def render_dmx(self, lights, dimmer):
+        for index, light in enumerate(lights):
+            # channel_begin = index * channels_per_lamp + 1
+
+            channel_begin = light.channel
+            r,g,b = light.dimmed_values()
+
+            if self._strobe_on:
+                dmx_net.set_single_value(channel_begin, 239)
+            else:
+                dmx_net.set_single_value(channel_begin, 241)
+            dmx_net.set_single_value(channel_begin+1, int(r * dimmer))
+            dmx_net.set_single_value(channel_begin + 2, int(g * dimmer))
+            dmx_net.set_single_value(channel_begin + 3, int(b * dimmer))
+            dmx_net.set_single_value(channel_begin + 4, light._white) # White
+            dmx_net.set_single_value(channel_begin + 5, light._auto) # Mode
+            logger.debug(light)
+        
+        
+    logger.debug(dmx_packet)
+    dmx_net.show()
 
 
     def set_render_function(self, function):
@@ -266,14 +267,9 @@ class LightGroup:
         """
         #FIXME: Do this via DMX Light strobe function
         """
-        if time() - self._last_strobe_on > 1/frequency:
-            self._last_strobe_on = time()
-            if self._strobe_on:
-                self.set_lights_dimmer(0.0)
-                self._strobe_on = False
-            else:
-                self.set_lights_dimmer(1.0)
-                self._strobe_on = True
+        for light in self._lights:
+            light.strobe = True
+
 
     def rotate_forward(self):
         self._rotation_lead += 1
@@ -399,16 +395,21 @@ class LightGroup:
             self._beat_now = self.check_for_beat()
 
             if self._animation == Pattern.FULL_FADE:
+                self._strobe_on = False
                 self.full_fade(self._beat_now)
             elif self._animation == Pattern.BEAT_CIRCLE:
+                self._strobe_on = False
                 self.beat_circle(per_bar=True)
             elif self._animation == Pattern.STROBE:
-                pass
+                self._strobe_on = True
             elif self._animation == Pattern.BREATHE:
+                self._strobe_on = False
                 self.breathe()
             elif self._animation == Pattern.SOLID:
+                self._strobe_on = False
                 self.solid()
             elif self._animation == Pattern.BEAT_BLINK:
+                self._strobe_on = False
                 self.beat_blink()
 
             # Only render with 30 FPS

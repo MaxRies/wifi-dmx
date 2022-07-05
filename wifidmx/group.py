@@ -193,6 +193,7 @@ class LightGroup:
         for light in self._lights:
             light.dimmer = dimmer
 
+
     def set_global_dimmer(self, dimmer):
         """
         Dimmer Value: [0.0, 1.0]
@@ -207,6 +208,7 @@ class LightGroup:
             dimmer = 1.0
 
         self.dimmer = dimmer
+        logger.info(f"Set global Dimmer to {dimmer}")
 
 
     def set_pattern(self, new_pattern):
@@ -363,9 +365,16 @@ class LightGroup:
     def check_for_beat(self):
         # TODO
         # Check UDP Socket for beat
+
+
         if self.auto_animation:
             if time() - self._last_beat > self.auto_beat_interval:
                 self.beat()
+                return True
+            else:
+                return False
+        else:
+            if self._beat_used is False:
                 return True
             else:
                 return False
@@ -382,7 +391,7 @@ class LightGroup:
             if self._animation == Pattern.FULL_FADE:
                 self.full_fade(self._beat_now)
             elif self._animation == Pattern.BEAT_CIRCLE:
-                self.beat_circle()
+                self.beat_circle(per_bar=True)
             elif self._animation == Pattern.STROBE:
                 pass
             elif self._animation == Pattern.BREATHE:

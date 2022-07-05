@@ -113,6 +113,8 @@ class LightGroup:
 
         self._render_function = self.render_dmx
 
+        self._strobe_on = False
+
         # effect timers
         self._animation_start = 0.0
 

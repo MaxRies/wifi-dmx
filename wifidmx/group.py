@@ -327,7 +327,7 @@ class LightGroup:
         dimmer_value = 0.5 * sin((2*pi / breathe_time) * (now - self._animation_start)) + 0.5 
 
         self.fill(self._fg_color)
-        self.set_lights_dimmer(dimmer_value)
+        self.set_global_dimmer(dimmer_value)
 
     def solid(self):
         self.fill(self._fg_color)
@@ -368,6 +368,7 @@ class LightGroup:
             pass
         else:
             self.beat()
+            logger.info("Christophbeat!")
 
 
     def check_for_beat(self):

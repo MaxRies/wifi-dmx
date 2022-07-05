@@ -306,7 +306,8 @@ def handle_strobe_color(message):
 
 def handle_fg_color_string(message):
     try:
-        new_color = string_to_color(message.payload)
+        message_string = str(message.payload.decode("utf-8"))
+        new_color = string_to_color(message_string)
         LIGHTS._fg_color = new_color
         logger.info(f"Set fg_color to {new_color}")
     except ValueError:
@@ -316,7 +317,8 @@ def handle_fg_color_string(message):
 
 def handle_bg_color_string(message):
     try:
-        new_color = string_to_color(message.payload)
+        message_string = str(message.payload.decode("utf-8"))
+        new_color = string_to_color(message_string)
         LIGHTS._bg_color = new_color
         logger.info(f"Set bg_color to {new_color}")
     except ValueError:
@@ -326,7 +328,8 @@ def handle_bg_color_string(message):
 
 def handle_strobe_color_string(message):
     try:
-        new_color = string_to_color(message.payload)
+        message_string = str(message.payload.decode("utf-8"))
+        new_color = string_to_color(message_string)
         LIGHTS._strobe_color = new_color
         logger.info(f"Set _strobe_color to {new_color}")
     except ValueError:

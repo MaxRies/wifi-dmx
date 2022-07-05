@@ -105,7 +105,8 @@ class LightGroup:
 
         self._lights = None
         
-        self._dimmer = 1.0
+        self._global_dimmer = 1.0
+        self._animation_dimmer = 1.0
         self._speed=1.0
 
         self._fg_color = (255, 0, 0)
@@ -154,9 +155,9 @@ class LightGroup:
                 logger.info("Strobe off")
 
 
-            global_dimmed_r = int(r * dimmer)
-            global_dimmed_g = int(g * dimmer)
-            global_dimmed_b = int(b * dimmer)
+            global_dimmed_r = int(r * dimmer * self._animation_dimmer)
+            global_dimmed_g = int(g * dimmer * self._animation_dimmer)
+            global_dimmed_b = int(b * dimmer * self._animation_dimmer)
             logger.info("DIMMED R: {} G: {} B: {}".format(global_dimmed_r, global_dimmed_g, global_dimmed_b))
 
             dmx_net.set_single_value(channel_begin+1, global_dimmed_r)
@@ -293,9 +294,7 @@ class LightGroup:
         self.rotate_forward()
 
     def fade(self, factor = 0.8):
-        self.dimmer = self.dimmer * factor
-        # for light in self._lights:
-        #     light.dimmer = light.dimmer * factor
+        self.dimmer = self._animation_dimmer * factor
 
     def fill(self, color):
         for light in self._lights:
@@ -315,6 +314,7 @@ class LightGroup:
         if animation_fraction > 1.0:
             logger.debug("Animation_fraction bigger than 1.0")
             self._beat_circle_start = time()
+            self._animation_dimmer = 1.0
         else:
             self.fade()
             current_position = (int(lights_per_lap * animation_fraction) % 16)
@@ -326,7 +326,7 @@ class LightGroup:
         # Pattern: Light up all the lights on the beat, in between fade
         if beat_now is True:
             self.fill(self._fg_color)
-            self.set_lights_dimmer(1.0)
+            self._animation_dimmer = 1.0
             logger.debug("FULL FADE FILL")
         else:
             self.fade(0.8)
@@ -339,11 +339,12 @@ class LightGroup:
         dimmer_value = 0.5 * sin((2*pi / breathe_time) * (now - self._breathe_start)) + 0.5 
 
         self.fill(self._fg_color)
-        self.set_global_dimmer(dimmer_value)
+        self._animation_dimmer = dimmer_value
 
     def solid(self):
         self.fill(self._fg_color)
         self.set_lights_dimmer(self._dimmer)
+        self._animation_dimmer = 1.0
 
 
     """
@@ -445,6 +446,7 @@ class LightGroup:
             self._pattern_start = time()
             self._breathe_start = time()
             self._beat_circle_start = time()
+            self._animation_dimmer = 1.0
             logger.info(f"Set pattern to {self._animation}")
 
 

@@ -156,7 +156,7 @@ class LightGroup:
             if self._strobe_on:
                 dmx_net.set_single_value(channel_begin, 239)
                 self._animation_dimmer = 1.0
-                self._dimmer = 1.0
+                self._global_dimmer = 1.0
                 for light in lights:
                     light.dimmer = 1.0
                 logger.debug("Strobe on")
@@ -190,7 +190,7 @@ class LightGroup:
         self._render_function = function
 
     def render(self):
-        self._render_function(self._lights, self._dimmer)
+        self._render_function(self._lights, self._global_dimmer)
 
     def reset_timers(self):
         now = time()
@@ -365,7 +365,7 @@ class LightGroup:
 
     def solid(self):
         self.fill(self._fg_color)
-        self.set_lights_dimmer(self._dimmer)
+        self.set_lights_dimmer(self._global_dimmer)
         self._animation_dimmer = 1.0
 
 
@@ -497,7 +497,7 @@ class LightGroup:
 
     @property
     def dimmer(self):
-        return self._dimmer
+        return self._global_dimmer
 
     @dimmer.setter
     def dimmer(self, new_value):
@@ -506,7 +506,7 @@ class LightGroup:
         elif new_value > 1:
             new_value = 1
         
-        self._dimmer= new_value
+        self._global_dimmer = new_value
         logger.info("Set Lightgroup Dimmer to {}".format(new_value))
 
 

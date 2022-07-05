@@ -60,9 +60,9 @@ def render_dmx(lights, dimmer):
         b *= dimmer
         
         dmx_net.set_single_value(channel_begin, 241)
-        dmx_net.set_single_value(channel_begin+1, r)
-        dmx_net.set_single_value(channel_begin + 2, g)
-        dmx_net.set_single_value(channel_begin + 3, b)
+        dmx_net.set_single_value(channel_begin+1, int(r))
+        dmx_net.set_single_value(channel_begin + 2, int(g))
+        dmx_net.set_single_value(channel_begin + 3, int(b))
         dmx_net.set_single_value(channel_begin + 4, 0) # White
         dmx_net.set_single_value(channel_begin + 5, 0) # Mode
 

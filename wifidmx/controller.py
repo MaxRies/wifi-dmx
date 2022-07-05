@@ -307,35 +307,38 @@ def handle_strobe_color(message):
 def handle_fg_color_string(message):
     try:
         message_string = str(message.payload.decode("utf-8"))
+        logger.info(message_string)
         new_color = string_to_color(message_string)
         LIGHTS._fg_color = new_color
         logger.info(f"Set fg_color to {new_color}")
     except ValueError:
-        logger.warn(f"Invalid message passed to handle_fg_color_string: {message.payload}")
+        logger.warn(f"Invalid message passed to handle_bg_color_string: {message_string}")
     except TypeError:
-        logger.warn(f"Invalid message type passed to handle_fg_color_string: {type(message.payload)}")
+        logger.warn(f"Invalid message type passed to handle_bg_color_string: {type(message_string)}")
 
 def handle_bg_color_string(message):
     try:
         message_string = str(message.payload.decode("utf-8"))
+        logger.info(message_string)
         new_color = string_to_color(message_string)
         LIGHTS._bg_color = new_color
         logger.info(f"Set bg_color to {new_color}")
     except ValueError:
-        logger.warn(f"Invalid message passed to handle_bg_color_string: {message.payload}")
+        logger.warn(f"Invalid message passed to handle_bg_color_string: {message_string}")
     except TypeError:
-        logger.warn(f"Invalid message type passed to handle_bg_color_string: {type(message.payload)}")
+        logger.warn(f"Invalid message type passed to handle_bg_color_string: {type(message_string)}")
 
 def handle_strobe_color_string(message):
     try:
         message_string = str(message.payload.decode("utf-8"))
+        logger.info(message_string)
         new_color = string_to_color(message_string)
         LIGHTS._strobe_color = new_color
         logger.info(f"Set _strobe_color to {new_color}")
     except ValueError:
-        logger.warn(f"Invalid message passed to handle_strobe_color_string: {message.payload}")
+        logger.warn(f"Invalid message passed to handle_bg_color_string: {message_string}")
     except TypeError:
-        logger.warn(f"Invalid message type passed to handle_strobe_color_string: {type(message.payload)}")
+        logger.warn(f"Invalid message type passed to handle_bg_color_string: {type(message_string)}")
 
 
 

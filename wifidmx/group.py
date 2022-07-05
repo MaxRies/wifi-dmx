@@ -154,8 +154,8 @@ class LightGroup:
             logger.debug(light)
         
         
-    logger.debug(dmx_packet)
-    dmx_net.show()
+        logger.debug(dmx_packet)
+        dmx_net.show()
 
 
     def set_render_function(self, function):

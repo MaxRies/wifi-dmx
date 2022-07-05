@@ -312,7 +312,7 @@ if __name__ == "__main__":
             LIGHTS.loop()
             beat = comm.beat_detected()
             if beat:
-                LIGHTS.beat()
+                LIGHTS.christophbeat()
                 logger.info("CHRISTOPHBEAT")
         except KeyboardInterrupt:
             break

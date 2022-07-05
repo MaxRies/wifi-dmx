@@ -14,6 +14,7 @@ logging.basicConfig(
     format="%(asctime)s - %(name)s - %(levelname)s - %(message)s", level=logging.INFO
 )
 logger = logging.getLogger('LightGroup')
+logger.setLevel(logging.DEBUG)
 ### GLOBALS ####
 
 ### ARTNET RELATED ####
@@ -55,19 +56,18 @@ def render_dmx(lights, dimmer):
 
         channel_begin = light.channel
         r,g,b = light.dimmed_values()
-        r *= dimmer
-        g *= dimmer
-        b *= dimmer
         
         dmx_net.set_single_value(channel_begin, 241)
-        dmx_net.set_single_value(channel_begin+1, int(r))
-        dmx_net.set_single_value(channel_begin + 2, int(g))
-        dmx_net.set_single_value(channel_begin + 3, int(b))
+        dmx_net.set_single_value(channel_begin+1, int(r * dimmer))
+        dmx_net.set_single_value(channel_begin + 2, int(g * dimmer))
+        dmx_net.set_single_value(channel_begin + 3, int(b * dimmer))
         dmx_net.set_single_value(channel_begin + 4, 0) # White
         dmx_net.set_single_value(channel_begin + 5, 0) # Mode
 
-        logger.debug(light)
         
+        
+    logger.debug(lights)
+    logger.debug(dmx_packet)
     dmx_net.show()
 
 
@@ -364,6 +364,13 @@ class LightGroup:
         self._last_beat = time()
         self._beat_used = False
 
+    
+    def christophbeat(self):
+        if self.auto_animation:
+            pass
+        else:
+            self.beat()
+
 
     def check_for_beat(self):
         # TODO
@@ -405,7 +412,7 @@ class LightGroup:
                 self.beat_blink()
 
             # Only render with 30 FPS
-            self._render_function(self._lights, self._dimmer)
+            self.render()
             self._last_render = now
 
             self._beat_now = False

@@ -15,7 +15,7 @@ class Light:
         self._dimmer = 1.00
     
     def __repr__(self) -> str:
-        return (f"{self._channel}: ({self.r}, {self.g}, {self.b})")
+        return (f"{self._channel}: ({self.r}, {self.g}, {self.b}), dimmer: {self._dimmer}")
 
     @property
     def r(self):

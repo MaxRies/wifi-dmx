@@ -148,12 +148,20 @@ class LightGroup:
 
             if self._strobe_on:
                 dmx_net.set_single_value(channel_begin, 239)
+                logger.info("Strobe on")
             else:
                 dmx_net.set_single_value(channel_begin, 241)
+                logger.info("Strobe off")
 
-            dmx_net.set_single_value(channel_begin+1, int(r * dimmer))
-            dmx_net.set_single_value(channel_begin + 2, int(g * dimmer))
-            dmx_net.set_single_value(channel_begin + 3, int(b * dimmer))
+
+            global_dimmed_r = int(r * dimmer)
+            global_dimmed_g = int(g * dimmer)
+            global_dimmed_b = int(b * dimmer)
+            logger.info("DIMMED R: {} G: {} B: {}".format(global_dimmed_r, global_dimmed_g, global_dimmed_b))
+
+            dmx_net.set_single_value(channel_begin+1, global_dimmed_r)
+            dmx_net.set_single_value(channel_begin + 2, global_dimmed_g)
+            dmx_net.set_single_value(channel_begin + 3, global_dimmed_b)
             dmx_net.set_single_value(channel_begin + 4, light._white) # White
             dmx_net.set_single_value(channel_begin + 5, light._auto) # Mode
             logger.debug(light)

@@ -116,6 +116,10 @@ class LightGroup:
 
         self._strobe_on = False
 
+        self._old_pattern = Pattern.SOLID
+        self._strobe_start = 0.0
+        self._strobe_end = 0.0
+
         # effect timers
         self._animation_start = 0.0
         self._pattern_start = 0.0
@@ -145,20 +149,24 @@ class LightGroup:
             # channel_begin = index * channels_per_lamp + 1
 
             channel_begin = light.channel
-            r,g,b = light.dimmed_values()
 
             if self._strobe_on:
                 dmx_net.set_single_value(channel_begin, 239)
-                logger.info("Strobe on")
+                self._animation_dimmer = 1.0
+                self._dimmer = 1.0
+                for light in lights:
+                    light.dimmer = 1.0
+                logger.debug("Strobe on")
             else:
                 dmx_net.set_single_value(channel_begin, 241)
-                logger.info("Strobe off")
+                logger.debug("Strobe off")
 
+            r,g,b = light.dimmed_values()
 
             global_dimmed_r = int(r * dimmer * self._animation_dimmer)
             global_dimmed_g = int(g * dimmer * self._animation_dimmer)
             global_dimmed_b = int(b * dimmer * self._animation_dimmer)
-            logger.info("DIMMED R: {} G: {} B: {}".format(global_dimmed_r, global_dimmed_g, global_dimmed_b))
+            logger.debug("DIMMED R: {} G: {} B: {}".format(global_dimmed_r, global_dimmed_g, global_dimmed_b))
 
             dmx_net.set_single_value(channel_begin+1, global_dimmed_r)
             dmx_net.set_single_value(channel_begin + 2, global_dimmed_g)
@@ -285,17 +293,14 @@ class LightGroup:
             light.strobe = True
 
 
-    def rotate_forward(self):
-        self._rotation_lead += 1
-        self._rotation_lead = self._rotation_lead % len(self._lights)
-
-    def rotate_lights(self, frequency):
-        self._lights[self._rotation_lead].dimmer = 1.0
-        self.rotate_forward()
+    def lamps_fade(self, factor = 0.8):
+        # self._animation_dimmer = self._animation_dimmer * factor
+        for light in self._lights:
+            light.dimmer = light.dimmer * factor
 
     def fade(self, factor = 0.8):
         self._animation_dimmer = self._animation_dimmer * factor
-
+        
     def fill(self, color):
         for light in self._lights:
             light.color = color
@@ -313,14 +318,17 @@ class LightGroup:
         animation_fraction = (time() - self._beat_circle_start) / time_for_lap
 
         if animation_fraction > 1.0:
-            logger.debug("Animation_fraction bigger than 1.0")
+            logger.info("Animation_fraction bigger than 1.0")
             self._beat_circle_start = time()
+            self._pattern_start = time()
             self._animation_dimmer = 1.0
         else:
-            self.fade()
-            current_position = (int(lights_per_lap * animation_fraction) % 16)
-            logger.debug(f"Animation_fraction: {animation_fraction} Position: {current_position}")
+            self.lamps_fade()
+            current_position = (int(lights_per_lap * animation_fraction) % lights_per_lap)
+            logger.info(f"Animation_fraction: {animation_fraction} Position: {current_position}")
             self._lights[current_position].color = self._fg_color
+            self._lights[current_position].dimmer = 1.0
+            # This does not work. all lights get dimmed by animation dimmer.
 
 
     def full_fade(self, beat_now):
@@ -369,6 +377,12 @@ class LightGroup:
         if not self._beat_used:
             # Spawn a new ball
             pass
+    
+    def short_strobe(self, length=0.5):
+        now = time()
+        self._old_pattern = self.pattern
+        self._strobe_start = now
+        self._strobe_end = now + length
 
     def beat(self):
         logger.info("BEAT!")
@@ -407,6 +421,10 @@ class LightGroup:
         # It calls the appropriate functions to manipulate the light state and renders them.
         now = time()
         # Check if we have a beat
+        if now < self._strobe_end:
+            self._animation = Pattern.STROBE
+        else:
+            self._animation = self._old_pattern
 
         if now - self._last_render > 1/FPS:
             self._beat_now = self.check_for_beat()

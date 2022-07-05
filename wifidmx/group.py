@@ -424,7 +424,10 @@ class LightGroup:
         if now < self._strobe_end:
             self._animation = Pattern.STROBE
         else:
-            self._animation = self._old_pattern
+            if self._old_pattern != Pattern.STROBE:
+                self._animation = self._old_pattern
+            else:
+                self._animation = Pattern.SOLID
 
         if now - self._last_render > 1/FPS:
             self._beat_now = self.check_for_beat()

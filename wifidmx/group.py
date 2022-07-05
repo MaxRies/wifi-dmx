@@ -63,10 +63,10 @@ def render_dmx(lights, dimmer):
         dmx_net.set_single_value(channel_begin + 3, int(b * dimmer))
         dmx_net.set_single_value(channel_begin + 4, 0) # White
         dmx_net.set_single_value(channel_begin + 5, 0) # Mode
+        logger.debug(light)
 
         
         
-    logger.debug(lights)
     logger.debug(dmx_packet)
     dmx_net.show()
 

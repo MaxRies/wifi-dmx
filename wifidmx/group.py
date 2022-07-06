@@ -19,7 +19,7 @@ logger.setLevel(logging.INFO)
 
 ### ARTNET RELATED ####
 # THESE ARE MOST LIKELY THE VALUES YOU WILL BE NEEDING
-target_ip = '192.168.0.244'		# typically in 2.x or 10.x range
+target_ip = '192.168.0.105'		# typically in 2.x or 10.x range
 universe = 0 										# see docs
 number_of_lamps = 16
 channels_per_lamp = 6
@@ -362,6 +362,18 @@ class LightGroup:
 
         self.fill(self._fg_color)
         self._animation_dimmer = dimmer_value
+
+
+    def circle_slow(self):
+        # Pattern: Move lights around
+        now = time()
+        breathe_time = 16 * self._beat_interval
+
+        for index, light in enumerate(self._lights):
+            dimmer_value = 0.5 * sin((2*pi / breathe_time) * (now - self._breathe_start) + (2*pi * index) / 16.0) + 0.5
+            light.dimmer = dimmer_value
+
+        self.fill(self._fg_color)
 
     def solid(self):
         self.fill(self._fg_color)

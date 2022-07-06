@@ -550,6 +550,32 @@ class LightGroup:
             elif self._animation == Pattern.BEAT_BLINK:
                 self._strobe_on = False
                 self.beat_blink()
+            elif self._animation == Pattern.CIRCLE_SLOW:
+                self._strobe_on = False
+                self.circle_slow()
+            elif self._animation == Pattern.TWOCOLOR_FADE_FAST:
+                self._strobe_on = False
+                self.twocolor_fade_fast()
+            elif self._animation == Pattern.TWOCOLOR_FADE:
+                self._strobe_on = False
+                self.twocolor_fade()
+            elif self._animation == Pattern.TWOCOLOR_FADE_SLOW:
+                self._strobe_on = False
+                self.twocolor_fade_slow()
+            elif self._animation == Pattern.UP_DOWN_FADE_FAST:
+                self._strobe_on = False
+                self.upper_lower_fade_fast()
+            elif self._animation == Pattern.UP_DOWN_FADE:
+                self._strobe_on = False
+                self.upper_lower_fade()
+            elif self._animation == Pattern.UP_DOWN_FADE_SLOW:
+                self._strobe_on = False
+                self.upper_lower_fade_slow()
+            elif self._animation == Pattern.UP_DOWN_SOLID:
+                self._strobe_on = False
+                self.upper_lower_colors()
+            
+
             
 
             # Only render with 30 FPS

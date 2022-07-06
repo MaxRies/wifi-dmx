@@ -23,7 +23,8 @@ target_ip = '192.168.0.105'		# typically in 2.x or 10.x range
 universe = 0 										# see docs
 number_of_lamps = 16
 channels_per_lamp = 6
-packet_size = number_of_lamps * channels_per_lamp							# it is not necessary to send whole universe
+motor_channels = 1
+packet_size = number_of_lamps * channels_per_lamp + motor_channels							# it is not necessary to send whole universe
 
 # CREATING A STUPID ARTNET OBJECT
 # SETUP NEEDS A FEW ELEMENTS
@@ -83,6 +84,14 @@ class Pattern(Enum):
     BEAT_CIRCLE = 4
     STROBE = 5
     BREATHE_FAST = 6
+    CIRCLE_SLOW = 7
+    TWOCOLOR_FADE_FAST = 8
+    TWOCOLOR_FADE = 9
+    TWOCOLOR_FADE_SLOW = 10
+    UP_DOWN_FADE_FAST = 11
+    UP_DOWN_FADE = 12
+    UP_DOWN_FADE_SLOW = 13
+    UP_DOWN_SOLID = 14
 
 
 class LightGroup:
@@ -105,6 +114,9 @@ class LightGroup:
         self.auto_beat_interval = 0.5    # 2 bps = 120 bpm
 
         self._lights = None
+        
+        self._upper_lights = None
+        self._lower_lights = None
         
         self._global_dimmer = 1.0
         self._animation_dimmer = 1.0
@@ -368,17 +380,65 @@ class LightGroup:
         # Pattern: Move lights around
         now = time()
         breathe_time = 16 * self._beat_interval
+        self.fill(self._fg_color)
 
         for index, light in enumerate(self._lights):
             dimmer_value = 0.5 * sin((2*pi / breathe_time) * (now - self._breathe_start) + (2*pi * index) / 16.0) + 0.5
             light.dimmer = dimmer_value
 
-        self.fill(self._fg_color)
+
+    def twocolor_fade_fast(self, multiplier = 1):
+        now = time()
+        fade_time = self._beat_interval * multiplier
+
+        value = 0.5 * sin((2*pi / fade_time) * (now - self._breathe_start)) + 0.5
+        new_r = value * self._fg_color[0] + (1-value) * self._bg_color[0]
+        new_g = value * self._fg_color[1] + (1-value) * self._bg_color[1]
+        new_b = value * self._fg_color[2] + (1-value) * self._bg_color[2]
+
+        self.fill((new_r, new_g, new_b))
+
+    def twocolor_fade(self):
+        self.twocolor_fade_fast(4)
+
+    def twocolor_fade_slow(self):
+        self.twocolor_fade_fast(16)
+        
+    def upper_lower_fade_fast(self, multiplier = 1):
+        now = time()
+        fade_time = self._beat_interval * multiplier
+
+        value = 0.5 * sin((2*pi / fade_time) * (now - self._breathe_start)) + 0.5
+        upper_r = value * self._fg_color[0] + (1-value) * self._bg_color[0]
+        upper_g = value * self._fg_color[1] + (1-value) * self._bg_color[1]
+        upper_b = value * self._fg_color[2] + (1-value) * self._bg_color[2]
+        
+        lower_r = (1-value) * self._fg_color[0] + value * self._bg_color[0]
+        lower_g = (1-value) * self._fg_color[1] + value * self._bg_color[1]
+        lower_b = (1-value) * self._fg_color[2] + value * self._bg_color[2]
+        
+        for light in self._lower_lights:
+            light.color = (lower_r, lower_g, lower_b)
+        for light in self._upper_lights:
+            light.color = (upper_r, upper_g, upper_b)
+            
+    def upper_lower_fade(self):
+        self.upper_lower_fade_fast(4)
+        
+    def upper_lower_fade_slow(self)
+        self.upper_lower_fade_fast(16)
+        
 
     def solid(self):
         self.fill(self._fg_color)
         self.set_lights_dimmer(self._global_dimmer)
         self._animation_dimmer = 1.0
+        
+    def upper_lower_colors(self):
+        for light in self._lower_lights:
+            light.color = self._fg_color
+        for light in self._upper_lights:
+            light.color = self._bg_color
 
 
     """
@@ -409,6 +469,12 @@ class LightGroup:
         self._strobe_start = now
         self._strobe_end = now + length
         self._short_strobe = True
+        
+        
+    def set_motor(self, value):
+        dmx_net.set_single_value(97, value)
+        logger.info(f"Motor set to {value}")
+
 
     def beat(self):
         logger.info("BEAT!")
@@ -484,6 +550,7 @@ class LightGroup:
             elif self._animation == Pattern.BEAT_BLINK:
                 self._strobe_on = False
                 self.beat_blink()
+            
 
             # Only render with 30 FPS
             self.render()

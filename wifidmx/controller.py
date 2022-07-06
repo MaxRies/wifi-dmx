@@ -25,6 +25,7 @@ STROBE_COLOR = "strobeColor"
 FG_COLOR_STRING = "fgColorString"
 BG_COLOR_STRING = "bgColorString"
 STROBE_COLOR_STRING = "strobeColorString"
+MOTOR_ST = "motor"
 
 DIMM_TOPIC = f"{BASE_TOPIC}/{DIMM_ST}"
 SPEED_TOPIC = f"{BASE_TOPIC}/{SPEED_ST}"
@@ -38,6 +39,7 @@ STROBE_COLOR_TOPIC = f"{BASE_TOPIC}/{STROBE_COLOR}"
 FG_COLOR_STRING_TOPIC = f"{BASE_TOPIC}/{FG_COLOR_STRING}"
 BG_COLOR_STRING_TOPIC = f"{BASE_TOPIC}/{BG_COLOR_STRING}"
 STROBE_COLOR_STRING_TOPIC = f"{BASE_TOPIC}/{STROBE_COLOR_STRING}"
+MOTOR_TOPIC = f"{BASE_TOPIC}/{MOTOR_ST}"
 
 
 
@@ -49,6 +51,9 @@ LIGHTS = LightGroup()
 for i in range (0,16):
     light = Light(i * channels_per_lamp + 1)
     LIGHTS.add_light(light)
+
+LIGHTS._upper_lights = [LIGHTS._lights[2], LIGHTS._lights[3], LIGHTS._lights[4], LIGHTS._lights[7], LIGHTS._lights[8], LIGHTS._lights[11], LIGHTS._lights[12], LIGHTS._lights[14]]
+LIGHTS._lower_lights = [LIGHTS._lights[0], LIGHTS._lights[1], LIGHTS._lights[5], LIGHTS._lights[6], LIGHTS._lights[9], LIGHTS._lights[10], LIGHTS._lights[13], LIGHTS._lights[15]]
 
 
 ############## MQTT STUFF ################
@@ -79,6 +84,7 @@ def on_connect(client, userdata, flags, rc):
     subscribe(client, FG_COLOR_STRING_TOPIC)
     subscribe(client, BG_COLOR_STRING_TOPIC)
     subscribe(client, STROBE_COLOR_STRING_TOPIC)
+    subscribe(client, MOTOR_TOPIC)
     
 
 def on_message(client, userdata, msg):
@@ -109,6 +115,9 @@ def on_message(client, userdata, msg):
         handle_bg_color_string(msg)
     elif topic == STROBE_COLOR_STRING_TOPIC:
         handle_strobe_color_string(msg)
+    elif topic == MOTOR_TOPIC:
+        handle_motor(msg)
+    
 """
 ##############################
 UDP STUFF
@@ -339,6 +348,18 @@ def handle_strobe_color_string(message):
         logger.warn(f"Invalid message passed to handle_bg_color_string: {message_string}")
     except TypeError:
         logger.warn(f"Invalid message type passed to handle_bg_color_string: {type(message_string)}")
+        
+def handle_motor(message):
+    try:
+        value = int(message.payload)
+        if value < 0:
+            value = 0
+        elif value > 255:
+            value = 255
+        LIGHTS.set_motor(value)
+        logger.info(f"Motor set to {value}")
+    except ValueError:
+        logger.warn("Invalid message passed to handle_motor: {}".format(message.payload))
 
 
 

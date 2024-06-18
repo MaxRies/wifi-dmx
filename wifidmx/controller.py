@@ -7,7 +7,7 @@ import communicator as comm
 from light import Light
 from group import LightGroup, Pattern
 
-logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+logging.basicConfig(level=logging.WARNING, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 logger = logging.getLogger("controller")
 
 MAXIMUM_MQTT_INT_VALUE = 65536.0

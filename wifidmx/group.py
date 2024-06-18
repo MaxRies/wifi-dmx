@@ -1,5 +1,7 @@
 from cmath import pi
 from light import Light
+import os
+
 # from plot_lights import draw_lights
 
 from stupidArtnet import StupidArtnet
@@ -14,12 +16,15 @@ logging.basicConfig(
     format="%(asctime)s - %(name)s - %(levelname)s - %(message)s", level=logging.INFO
 )
 logger = logging.getLogger('LightGroup')
-logger.setLevel(logging.INFO)
+logger.setLevel(logging.WARNING)
 ### GLOBALS ####
 
 ### ARTNET RELATED ####
 # THESE ARE MOST LIKELY THE VALUES YOU WILL BE NEEDING
-target_ip = '192.168.0.105'		# typically in 2.x or 10.x range
+target_ip = os.environ.get('DMXIP')
+if target_ip is None:
+    target_ip = '192.168.0.110'		# typically in 2.x or 10.x range
+
 universe = 0 										# see docs
 number_of_lamps = 16
 channels_per_lamp = 6
@@ -425,7 +430,7 @@ class LightGroup:
     def upper_lower_fade(self):
         self.upper_lower_fade_fast(4)
         
-    def upper_lower_fade_slow(self)
+    def upper_lower_fade_slow(self):
         self.upper_lower_fade_fast(16)
         
 
